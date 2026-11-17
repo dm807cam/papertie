@@ -47,8 +47,8 @@ const many: Op[] = Array.from({ length: 500 }, (_, i) => ({
 }))
 
 describe('limits', () => {
-  it('maxNotes is 100,000', () => {
-    expect(LIMITS.maxNotes).toBe(100_000)
+  it('maxNotes is 500,000', () => {
+    expect(LIMITS.maxNotes).toBe(500_000)
   })
 })
 

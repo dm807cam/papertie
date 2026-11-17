@@ -1,6 +1,6 @@
 export const LIMITS = {
   maxTextLength: 20_000,
-  maxNotes: 100_000,
+  maxNotes: 500_000,
   maxOpsPerBatch: 500,
   maxLabelLength: 80,
   maxThreadNotes: 200,

@@ -5,7 +5,7 @@ import { APP_URL, type Api } from './app'
 import { freshStart, onlyBoard } from './server'
 
 /**
- * A lifetime board: 100,000 notes (`LIMITS.maxNotes`) less ten, which the specs pin with "+", on
+ * A lifetime board: 100,000 notes less ten, which the specs pin with "+", on
  * genBoard's grid, and their threads.
  */
 export const LIFETIME_NOTES = 99_990

@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-Papertie keeps one person's board on their own machine. The board is meant to last: the design target is 100,000 notes (about 43 MB of text) and 500 books. The data must stay readable without Papertie, a crash or a bad write must never lose a change the app has confirmed, and the cost of saving one edit must not grow with the size of the board.
+Papertie keeps one person's board on their own machine. The board is meant to last: it is measured and budgeted at 100,000 notes (about 43 MB of text) and 500 books, and holds up to 500,000 notes. The data must stay readable without Papertie, a crash or a bad write must never lose a change the app has confirmed, and the cost of saving one edit must not grow with the size of the board.
 
 ## Decision
 

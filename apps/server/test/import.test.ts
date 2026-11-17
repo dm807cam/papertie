@@ -556,17 +556,6 @@ describe('hostile archives', () => {
       build: (zip) => writeZip([...entriesOf(zip), { name: 'notes.txt', data: Buffer.from('hi') }]),
     },
     {
-      name: `more than 100,000 notes`,
-      build: (zip, a) =>
-        writeZip(
-          replaceEntry(
-            entriesOf(zip),
-            'board.jsonl',
-            Buffer.from(serializeBoard(hugeState(a.board, 100_001))),
-          ),
-        ),
-    },
-    {
       name: 'an asset over 25 MB',
       build: (zip) =>
         writeZip(
@@ -1114,6 +1103,26 @@ describe('the caps on threads and photo records', () => {
     )
   }
   const at = '2026-10-27T10:00:00.000Z'
+
+  it('an import with more notes than maxNotes is refused as too-many-notes', async () => {
+    await start()
+    const note = (i: number) => ({
+      type: 'note',
+      id: newId('note'),
+      x: i,
+      y: 0,
+      w: 220,
+      h: 160,
+      z: i + 1,
+      paper: 'cream',
+      style: 'smooth',
+      text: '',
+      image: null,
+      createdAt: at,
+      updatedAt: at,
+    })
+    expect(await reasonFor(LIMITS.maxNotes + 1, note)).toBe('too-many-notes')
+  }, 120_000)
 
   it('an import with more threads than 4 × maxNotes is refused as too-many-threads', async () => {
     await start()

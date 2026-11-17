@@ -26,7 +26,7 @@ The machine-readable form is [`board-v1.schema.json`](./board-v1.schema.json). I
 | Limit | Value |
 |---|---|
 | Note text | at most 20,000 characters (counted as UTF-16 code units, as JavaScript `String.length`) |
-| Notes per board | at most 100,000 |
+| Notes per board | at most 500,000 |
 | Ops per batch | at most 500 |
 | Thread label | at most 80 characters |
 | Notes per thread | at most 200 |
@@ -304,7 +304,7 @@ A batch (`clientId`, `seq >= 1`, `baseRevision >= 0`, 1 to 500 `ops`) is committ
 - `yarn.noteIds` **uniqueness**.
 - `yarn.pins` keys must be notes **on that thread**, and the map must **not be empty**.
 - Patches (`note.update.set`, `yarn.update.set`) must set **at least one field**.
-- All cross-record invariants: references exist, line order, `eof` count and checksum, board-wide limits (100,000 notes, 500 books), per-book limits (60,000 blocks, 4,000,000 characters) and normalized marks (`missing-book`, `too-many-books`, `too-many-blocks`, `book-too-long`, `mark-range`), a figure's image and its asset (`figure-image`, `missing-asset`), a footnote's marks (`footnote-marks`), an anchor naming a footnote of its book, and a book's `cards` matching its blocks.
+- All cross-record invariants: references exist, line order, `eof` count and checksum, board-wide limits (500,000 notes, 500 books), per-book limits (60,000 blocks, 4,000,000 characters) and normalized marks (`missing-book`, `too-many-books`, `too-many-blocks`, `book-too-long`, `mark-range`), a figure's image and its asset (`figure-image`, `missing-asset`), a footnote's marks (`footnote-marks`), an anchor naming a footnote of its book, and a book's `cards` matching its blocks.
 - `book.create`'s `trashedAt: null` and a position key's pattern are in the schema; a block's marks being within its text is not.
 
 ## Annotated example

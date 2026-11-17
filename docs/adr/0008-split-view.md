@@ -6,7 +6,7 @@ Status: Accepted
 
 The board and an open book can sit side by side (`sidebar | board | seam | book`), so a card can go into the book and text can go back onto the cork. Several constraints shape how:
 
-- There is one board, and it may hold 100,000 notes. Its `CanvasRuntime` is expensive to make: it builds the spatial index, the yarn caches and the far-zoom pyramid.
+- There is one board, and it may hold hundreds of thousands of notes. Its `CanvasRuntime` is expensive to make: it builds the spatial index, the yarn caches and the far-zoom pyramid.
 - The writer must never be remounted while it is written in. A remount ends a dead key's composition, loses the caret and builds a long book's model again.
 - In a window narrower than 1,024 px there is no room for both, and the book lies over the board at full width.
 - The board's frame budgets must hold with the book open beside it, and typing in a long book must hold with the board live beside it.

@@ -190,7 +190,7 @@ describe('note commands', () => {
     expect(store.commits).toBe(0)
     expect(selectNotes).not.toHaveBeenCalled()
     expect(vi.mocked(announce).mock.calls.at(-1)?.[0]).toBe(
-      'Couldn’t duplicate: a board holds at most 100,000 notes',
+      'Couldn’t duplicate: a board holds at most 500,000 notes',
     )
   })
 

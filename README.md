@@ -5,7 +5,7 @@
 <h1 align="center">Papertie</h1>
 
 <p align="center">
-  A cork board for your notes and a writer for the book they become, on your own computer.
+  One board for a lifetime of notes, and a writer for every book they become.
 </p>
 
 <p align="center">
@@ -14,27 +14,45 @@
   <a href="https://github.com/dm807cam/papertie/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/dm807cam/papertie/actions/workflows/ci.yml/badge.svg"></a>
 </p>
 
-![The Papertie board: paper notes pinned to cork, some tied to each other with coloured yarn](docs/screenshots/board/wide-board-30.webp)
+![The Papertie board: paper notes pinned to cork, some tied to each other with coloured yarn](docs/assets/board.webp)
 
 ## What Papertie is
 
-Papertie is a desktop app for macOS, Windows and Linux. You pin paper notes and photos to one
-endless cork board and tie the ones that belong together with yarn. Beside the board is a wooden
-shelf of books, and a writer in which the notes on the board become chapters.
+Papertie is a desktop app for macOS, Windows and Linux. It gives you one cork board for
+everything you read and think, and a writer for the books that grow out of it.
 
-It is for people writing something long: a book, a thesis, a long essay. The board is where the
-material collects and finds its order; the writer is where it turns into prose, with each
-paragraph still knowing which note it came from.
+You pin a paper note for each idea, quotation, source or question, and tie the notes that belong
+together with yarn. The board is not for one project. It is meant to be kept for life: every
+subject you care about, every book and paper you have read, in one place, with the connections
+between them visible. Beside the board is a wooden shelf of books, and a writer in which the
+notes become chapters, each paragraph still knowing which note it came from. The same board can
+feed every book, thesis or essay you would like to write.
 
 Everything stays on your computer. There is no account, no sign-in and no sync, and your notes
 are kept as plain text you can read without Papertie.
+
+## Where the idea comes from
+
+The idea goes back to the author's time at Cambridge, and to a friend there, a scholar who is
+now an emeritus professor. For every book and every paper he read, he wrote a note and put it in
+a box. Over a working life the boxes became his memory: whatever he came to write, the reading
+was already there, in his own words, waiting to be laid out and put in order.
+
+Papertie is that box of notes with two things added. The notes hang on a board where you can
+see them all and tie one to another, so a thought from one field can sit next to a thought from
+another. And the board opens straight onto the page, so the step from a table covered in notes
+to a first draft is a drag of the mouse.
+
+It is a not-for-profit project, free to use and open source.
 
 ## Features
 
 ### The board
 
-- One board, as large as you need: it holds up to 100,000 notes and stays quick when you zoom
-  out to see all of them.
+- One board for everything, built to last a lifetime: it holds up to 500,000 notes. Typing and
+  moving notes were measured to stay as quick at 500,000 as at 1,000, and zooming out to see
+  the whole board stays smooth. A board that large takes longer to open: its first view comes
+  in a second or two, and the rest of the board arrives in the background.
 - Paper notes in several colours and styles, photos as prints, and small tags. A note can carry
   a free-text reference at its bottom (a source, a page, a link).
 - Yarn ties notes into threads. A thread runs from pin to pin through as many notes as you
@@ -46,7 +64,7 @@ are kept as plain text you can read without Papertie.
 
 ### From notes to a book
 
-![The board and an open book side by side](docs/screenshots/split/wide-split.webp)
+![The board and an open book side by side](docs/assets/split.webp)
 
 - The board and an open book sit side by side; drag the seam between them, or hide the board
   with one key (⌘\\, or Ctrl+\\).
@@ -60,7 +78,7 @@ are kept as plain text you can read without Papertie.
 
 ### The writer
 
-![The writer: a chapter with a quotation, a figure, pins in the left margin and prompts in the right](docs/screenshots/split/wide-prompts-margin.webp)
+![The writer: a chapter with a quotation, a figure, pins in the left margin and prompts in the right](docs/assets/writer.webp)
 
 - Chapters, sections, quotations, lists, bold and italic. The tools are in the sidebar, and the
   usual typed shortcuts work (`# ` for a chapter, `## ` for a section).
@@ -72,7 +90,7 @@ are kept as plain text you can read without Papertie.
   30 days.
 - A book exports to Markdown (with its images) and to Word (`.docx`, with real footnotes).
 
-![A wooden shelf of books, each with its own cover](docs/screenshots/books/wide-shelf-12.webp)
+![A wooden shelf of books, each with its own cover](docs/assets/shelf.webp)
 
 ### Your data
 
@@ -209,7 +227,7 @@ board.
 | `tools`         | Generators and build helpers: textures, test boards and books, the bundle budget                                                                                                                                                                                      |
 | `e2e`           | Playwright tests: the desktop app, the journeys, and the canvas on development pages                                                                                                                                                                                  |
 | `docs`          | [Architecture decisions](docs/adr), the [file format](docs/schema/board-v1.md), the [threat model](docs/security/threat-model.md), the [visual language](docs/design/visual-language.md), the [acceptance criteria](docs/acceptance.md), [releasing](docs/release.md) |
-| `marketing`     | The source of the product page                                                                                                                                                                                                                                        |
+| `web`           | The source of the product page                                                                                                                                                                                                                                        |
 
 ## Contributing
 

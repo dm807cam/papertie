@@ -28,7 +28,7 @@ import {
 /**
  * The screenshot gallery: every state of the app at three window sizes. Each shot is kept as a
  * lossless PNG in `e2e/artifacts/gallery/<viewport>-<state>.png` (git-ignored: the full-quality
- * originals), and committed as a WebP of it in `docs/screenshots/board/<viewport>-<state>.webp`,
+ * originals), and written as a WebP of it to `docs/screenshots/board/<viewport>-<state>.webp`,
  * with an index.
  *
  * Not a gate on pixels: each test asserts only that its state was reached (something visible or

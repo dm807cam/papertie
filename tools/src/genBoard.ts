@@ -223,7 +223,7 @@ export function wideBoard(): BoardState {
 }
 
 /**
- * The lifetime board: `LIMITS.maxNotes` notes and 10,000 threads on genBoard's grid
+ * The lifetime board: 100,000 notes and 10,000 threads on genBoard's grid
  * (317 columns of 340 × 300 world px cells, about 108,000 × 95,000 world px).
  */
 export const LIFETIME_SIZE = { notes: 100_000, yarns: 10_000 } as const
@@ -561,7 +561,7 @@ export function generateClusters(o: ClusterOptions): ClusteredBoard {
   return { state, sizes, clusterOf: byId }
 }
 
-/** The clustered lifetime board's size and seed: `LIMITS.maxNotes` notes, 10,000 threads. */
+/** The clustered lifetime board's size and seed: 100,000 notes, 10,000 threads. */
 export const CLUSTERED_LIFETIME = { notes: 100_000, yarns: 10_000, seed: 4243 } as const
 
 /** The lifetime board as years of use leave it (the bench board). */

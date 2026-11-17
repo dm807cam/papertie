@@ -6,8 +6,8 @@ every control is ink on paper.
 
 This file is the design reference: the values the app renders with, read from the code. Each
 section names its source files, and where this file and the code disagree, the code is right.
-Paths are relative to the repository root. Screenshots of the app as built are in
-[`docs/screenshots/`](../screenshots/board/index.md).
+Paths are relative to the repository root. `GALLERY=1 pnpm e2e:app gallery` writes screenshots of
+every state of the app as built to `docs/screenshots/` (not kept in the repository).
 
 Some sections mention the design study (`#/study`) and the developer strip and HUD. These are
 development pages and controls, built only with the developer routes; they are not part of the

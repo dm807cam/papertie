@@ -191,13 +191,13 @@ describe('clustered boards (the lifetime board as years of use leave it)', () =>
   const yarns = [...s.yarns.values()]
 
   it('has 100,000 notes and 10,000 threads, valid, in 300-800 clusters of 20-600', () => {
-    expect([s.notes.size, s.yarns.size]).toEqual([LIMITS.maxNotes, 10_000])
+    expect([s.notes.size, s.yarns.size]).toEqual([100_000, 10_000])
     expect(validateInvariants(s)).toEqual([])
     expect(sizes.length).toBeGreaterThanOrEqual(300)
     expect(sizes.length).toBeLessThanOrEqual(800)
     expect(Math.min(...sizes)).toBeGreaterThanOrEqual(20)
     expect(Math.max(...sizes)).toBeLessThanOrEqual(600)
-    expect(sizes.reduce((a, b) => a + b, 0)).toBe(LIMITS.maxNotes)
+    expect(sizes.reduce((a, b) => a + b, 0)).toBe(100_000)
     // Every cluster's notes are the ones its layout gave it.
     const counted = new Map<number, number>()
     for (const c of clusterOf.values()) counted.set(c, (counted.get(c) ?? 0) + 1)
