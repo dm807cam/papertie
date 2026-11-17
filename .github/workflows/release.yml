@@ -18,7 +18,9 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Ubuntu 22.04: the Windows installer is made with 32-bit wine, which the newer images'
+    # kernel does not run.
+    runs-on: ubuntu-22.04
     # electron-builder's own image with Node 22 and wine, pinned to its digest (amd64 only). The
     # wine is for the Windows build; electron-builder 26 also edits the .exe's resources without it.
     container:
