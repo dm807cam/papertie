@@ -1,0 +1,300 @@
+/*
+ * Focus mode: the notes leaving the view fade out (250 ms, on the shared ease; none
+ * under reduced motion), the loose ends' cursor, and the focus chip, a paper tag in the same
+ * stationery as the notice slips (`.sync-paper`, from sync.css). No glow.
+ */
+:root {
+  --focus-fade: 250ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --focus-fade: 0ms;
+  }
+}
+
+:root[data-motion="reduced"] {
+  --focus-fade: 0ms;
+}
+
+/* Only while focus is on or fading: the board's notes have no transition otherwise. */
+.viewport[data-focus] > .world > .note {
+  transition:
+    opacity var(--focus-fade) var(--ease),
+    visibility 0s;
+}
+
+/* Faded, then gone from paint and from hit-testing; `inert` and `aria-hidden` are on it too. */
+.viewport[data-focus] > .world > .note[data-focus-out] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--focus-fade) var(--ease),
+    visibility 0s linear var(--focus-fade);
+}
+
+/* A note mounting as the board comes back fades in with the rest. */
+.viewport[data-focus] > .world > .note[data-focus-in] {
+  animation: focus-in var(--focus-fade) var(--ease);
+}
+
+@keyframes focus-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* A focus restored or recomputed at once (a reload, a restore): no fade at all. */
+.viewport[data-focus-snap] > .world > .note {
+  transition: none;
+  animation: none;
+}
+
+.viewport[data-focus][data-loose],
+.viewport[data-focus][data-loose] * {
+  cursor: pointer;
+}
+
+/* The notice slips stand above the chip: they rise as it comes and settle as it goes. */
+.viewport > .ui > .sync-notices {
+  transition: translate var(--motion-base) var(--ease);
+}
+
+.viewport[data-focus] > .ui > .sync-notices {
+  translate: 0 -56px;
+}
+
+/* ---- the chip --------------------------------------------------------------------------- */
+
+.viewport > .ui > .focus-chip {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px 6px 30px;
+  white-space: nowrap;
+  transform: translateX(-50%) rotate(-0.4deg);
+  animation: sync-rise var(--motion-base) var(--ease);
+}
+
+/* Leaving focus: it sinks away as a notice slip does. */
+.viewport > .ui > .focus-chip[data-leaving] {
+  opacity: 0;
+  translate: 0 6px;
+  transition:
+    opacity var(--motion-base) var(--ease),
+    translate var(--motion-base) var(--ease);
+}
+
+/* The tag's punched eyelet. */
+.focus-chip::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ink-cream) 12%, var(--paper-cream));
+  box-shadow:
+    inset 0 1px 1px rgb(40 24 8 / 0.22),
+    0 0 0 1px color-mix(in srgb, var(--ink-cream) 14%, transparent);
+}
+
+.focus-chip-label {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0 8px 0 0;
+  font: 600 15px / 1.4 var(--font-display);
+  letter-spacing: 0.01em;
+}
+
+.focus-chip-step,
+.focus-chip-text,
+.focus-chip-exit {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  /* The UI's icon ink, so the pointer's darker ink has room to show (tokens.css). */
+  color: var(--ui-ink);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+
+.focus-chip-step {
+  width: 32px;
+  border-radius: 50%;
+}
+
+.focus-chip-step > svg,
+.focus-chip-exit > svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.focus-chip-text {
+  padding: 0 9px;
+  font: 500 13px / 1.4 var(--font-note);
+  letter-spacing: 0.02em;
+}
+
+.focus-chip-text[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--ink-cream) 8%, transparent);
+  box-shadow: inset 0 1px 2px rgb(40 24 8 / 0.08);
+}
+
+.focus-chip-dot {
+  color: var(--sync-muted);
+}
+
+.focus-chip-exit {
+  grid-auto-flow: column;
+  gap: 6px;
+  margin-left: 6px;
+  padding: 0 8px;
+  color: var(--sync-muted);
+}
+
+.focus-chip-key {
+  padding: 0 4px;
+  border: 1px solid var(--sync-rule);
+  border-radius: 3px;
+  font: 500 11px / 1.5 var(--font-note);
+  letter-spacing: 0.02em;
+}
+
+/* The UI's one language (tokens.css): hover deepens each control's own ink, a press inks the fibre paper. */
+@media (hover: hover) {
+  .focus-chip-step:hover:not([aria-disabled="true"]),
+  .focus-chip-text:hover {
+    color: color-mix(in srgb, var(--ui-ink), #000 var(--hover-ink));
+  }
+
+  .focus-chip-exit:hover {
+    color: color-mix(in srgb, var(--sync-muted), #000 var(--hover-ink));
+  }
+}
+
+.focus-chip-step:active:not([aria-disabled="true"]),
+.focus-chip-text:active,
+.focus-chip-exit:active {
+  background: var(--press-wash);
+}
+
+.focus-chip-step[aria-disabled="true"] {
+  color: var(--sync-muted);
+  opacity: 0.55;
+  cursor: default;
+}
+
+.focus-chip-step:focus-visible,
+.focus-chip-text:focus-visible,
+.focus-chip-exit:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/*
+ * A touch screen has no Esc key to hint at. Its finger takes each control by a 44 px-tall band
+ * (drawn 32 px, as the sidebar's buttons keep their size inside a larger press): the chip's row
+ * stays as it is, and the band reaches into the air above and below the tag.
+ */
+@media (pointer: coarse) {
+  .focus-chip-key {
+    display: none;
+  }
+
+  .focus-chip-step,
+  .focus-chip-text,
+  .focus-chip-exit {
+    position: relative;
+  }
+
+  .focus-chip-step::after,
+  .focus-chip-text::after,
+  .focus-chip-exit::after {
+    content: "";
+    position: absolute;
+    inset: -6px 0;
+  }
+}
+
+/*
+ * A phone: centred where the notice slips start (sync.css), above the mini-bar (its save dot in
+ * it), as narrow as it goes; the label gives way before a control does. The slips then rise by
+ * the same 56 px as on a desktop.
+ */
+@media (max-width: 767px) {
+  .viewport > .ui > .focus-chip {
+    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 56px + 10px + var(--minibar-rise, 0px));
+    transition: bottom var(--motion-base) var(--ease);
+    max-width: calc(100% - 16px);
+    padding: 4px 4px 4px 24px;
+  }
+
+  .focus-chip::before {
+    left: 9px;
+  }
+
+  .focus-chip-label {
+    margin-right: 2px;
+    font-size: 14px;
+  }
+
+  /* The label is the steps alone ("2 steps"): the toolbar's own name says Focus. */
+  .focus-chip-word {
+    display: none;
+  }
+
+  /*
+   * − and + are a finger's full 44 × 44: the box reaches 6 px into the air above and below the
+   * tag (the row keeps its height), its press wash still the drawn 32 px round.
+   */
+  .focus-chip-step {
+    width: 44px;
+    height: 44px;
+    margin-block: -6px;
+    padding: 6px;
+    background-clip: content-box;
+  }
+
+  .focus-chip-step::after {
+    inset: 0;
+  }
+
+  .focus-chip-dot {
+    margin: 0 2px;
+  }
+
+  .focus-chip-text {
+    padding: 0 6px;
+  }
+
+  .focus-chip-exit {
+    margin-left: 0;
+    padding: 0 10px;
+  }
+
+  .focus-chip-key {
+    display: none;
+  }
+}

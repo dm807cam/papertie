@@ -1,0 +1,8 @@
+/*
+ * The first paint, before the app's own CSS: the colour behind the cork (`--stage` in
+ * src/styles/tokens.css, which test/stage.test.ts keeps in step). A file, not an inline style,
+ * because the server's CSP is `style-src 'self'`.
+ */
+html {
+  background: #8b6b47;
+}

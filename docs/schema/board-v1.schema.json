@@ -1,0 +1,2163 @@
+{
+  "$id": "https://papertie.local/schema/board-v1.json",
+  "line": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "board"
+          },
+          "schemaVersion": {
+            "type": "number",
+            "const": 6
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "clients": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "lastSeq": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "lastRevision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "seenAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                }
+              },
+              "required": [
+                "lastSeq",
+                "lastRevision",
+                "seenAt"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          }
+        },
+        "required": [
+          "type",
+          "schemaVersion",
+          "id",
+          "name",
+          "revision",
+          "clients",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "asset"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "mime": {
+            "type": "string",
+            "const": "image/webp"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "rev": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "mime",
+          "width",
+          "height",
+          "bytes",
+          "sha256",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "note"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "x": {
+            "type": "number",
+            "minimum": -10000000,
+            "maximum": 10000000
+          },
+          "y": {
+            "type": "number",
+            "minimum": -10000000,
+            "maximum": 10000000
+          },
+          "w": {
+            "type": "number",
+            "minimum": 120,
+            "maximum": 2000
+          },
+          "h": {
+            "type": "number",
+            "minimum": 60,
+            "maximum": 4000
+          },
+          "z": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "paper": {
+            "type": "string",
+            "enum": [
+              "cream",
+              "rose",
+              "apricot",
+              "indigo",
+              "sage",
+              "lilac",
+              "ochre",
+              "ink"
+            ]
+          },
+          "style": {
+            "type": "string",
+            "enum": [
+              "rustic",
+              "smooth",
+              "print"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 20000
+          },
+          "image": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "assetId": {
+                    "type": "string",
+                    "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                  },
+                  "frame": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "print"
+                    ]
+                  }
+                },
+                "required": [
+                  "assetId",
+                  "frame"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "motif": {
+            "type": "string",
+            "enum": [
+              "fold",
+              "margin",
+              "dots",
+              "perforation"
+            ]
+          },
+          "stamp": {
+            "type": "boolean",
+            "const": true
+          },
+          "layered": {
+            "type": "string",
+            "enum": [
+              "cream",
+              "rose",
+              "apricot",
+              "indigo",
+              "sage",
+              "lilac",
+              "ochre",
+              "ink"
+            ]
+          },
+          "from": {
+            "type": "object",
+            "properties": {
+              "book": {
+                "type": "string",
+                "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+              },
+              "block": {
+                "type": "string",
+                "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            },
+            "required": [
+              "book",
+              "block"
+            ],
+            "additionalProperties": false
+          },
+          "ref": {
+            "type": "string",
+            "maxLength": 2000,
+            "pattern": "^\\S(?:[\\s\\S]*\\S)?$"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "rev": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "x",
+          "y",
+          "w",
+          "h",
+          "z",
+          "paper",
+          "style",
+          "text",
+          "image",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "yarn"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "noteIds": {
+            "minItems": 2,
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+            }
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "cream",
+              "rose",
+              "apricot",
+              "indigo",
+              "sage",
+              "lilac",
+              "ochre",
+              "ink"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "pins": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+            },
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[0-9A-Za-z_-]{1,32}$"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "rev": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "noteIds",
+          "color",
+          "label",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "book"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "de",
+              "en"
+            ]
+          },
+          "shelfPos": {
+            "type": "string",
+            "maxLength": 128,
+            "pattern": "^[0-9A-Za-z]*[1-9A-Za-z]$"
+          },
+          "cover": {
+            "type": "object",
+            "properties": {
+              "seed": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4294967295
+              },
+              "ink": {
+                "type": "string",
+                "enum": [
+                  "rose",
+                  "indigo",
+                  "sage",
+                  "lilac",
+                  "ochre",
+                  "ink"
+                ]
+              },
+              "motif": {
+                "type": "string",
+                "enum": [
+                  "fields",
+                  "overprint",
+                  "contour"
+                ]
+              }
+            },
+            "required": [
+              "seed",
+              "ink",
+              "motif"
+            ],
+            "additionalProperties": false
+          },
+          "trashedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "cards": {
+            "maxItems": 60000,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+            }
+          },
+          "rev": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "title",
+          "lang",
+          "shelfPos",
+          "cover",
+          "trashedAt",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "block"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "bookId": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "pos": {
+            "type": "string",
+            "maxLength": 128,
+            "pattern": "^[0-9A-Za-z]*[1-9A-Za-z]$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "p",
+              "h1",
+              "h2",
+              "quote",
+              "li",
+              "prompt",
+              "figure",
+              "footnote"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 20000
+          },
+          "marks": {
+            "maxItems": 2000,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "t": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "b",
+                        "i"
+                      ]
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^c:note_[0-9A-HJKMNP-TV-Z]{26}$"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^n:block_[0-9A-HJKMNP-TV-Z]{26}$"
+                    }
+                  ]
+                },
+                "from": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "to": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "t",
+                "from",
+                "to"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "image": {
+            "type": "object",
+            "properties": {
+              "assetId": {
+                "type": "string",
+                "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+              },
+              "card": {
+                "type": "string",
+                "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+              }
+            },
+            "required": [
+              "assetId"
+            ],
+            "additionalProperties": false
+          },
+          "rev": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "bookId",
+          "pos",
+          "kind",
+          "text",
+          "marks"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "eof"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "records": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "type",
+          "revision",
+          "records",
+          "sha256"
+        ],
+        "additionalProperties": false
+      }
+    ]
+  },
+  "op": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "note.create"
+          },
+          "note": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "note"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+              },
+              "x": {
+                "type": "number",
+                "minimum": -10000000,
+                "maximum": 10000000
+              },
+              "y": {
+                "type": "number",
+                "minimum": -10000000,
+                "maximum": 10000000
+              },
+              "w": {
+                "type": "number",
+                "minimum": 120,
+                "maximum": 2000
+              },
+              "h": {
+                "type": "number",
+                "minimum": 60,
+                "maximum": 4000
+              },
+              "z": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "paper": {
+                "type": "string",
+                "enum": [
+                  "cream",
+                  "rose",
+                  "apricot",
+                  "indigo",
+                  "sage",
+                  "lilac",
+                  "ochre",
+                  "ink"
+                ]
+              },
+              "style": {
+                "type": "string",
+                "enum": [
+                  "rustic",
+                  "smooth",
+                  "print"
+                ]
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 20000
+              },
+              "image": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "assetId": {
+                        "type": "string",
+                        "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                      },
+                      "frame": {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "print"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "assetId",
+                      "frame"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "motif": {
+                "type": "string",
+                "enum": [
+                  "fold",
+                  "margin",
+                  "dots",
+                  "perforation"
+                ]
+              },
+              "stamp": {
+                "type": "boolean",
+                "const": true
+              },
+              "layered": {
+                "type": "string",
+                "enum": [
+                  "cream",
+                  "rose",
+                  "apricot",
+                  "indigo",
+                  "sage",
+                  "lilac",
+                  "ochre",
+                  "ink"
+                ]
+              },
+              "from": {
+                "type": "object",
+                "properties": {
+                  "book": {
+                    "type": "string",
+                    "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                  },
+                  "block": {
+                    "type": "string",
+                    "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                  }
+                },
+                "required": [
+                  "book",
+                  "block"
+                ],
+                "additionalProperties": false
+              },
+              "ref": {
+                "type": "string",
+                "maxLength": 2000,
+                "pattern": "^\\S(?:[\\s\\S]*\\S)?$"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "rev": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "x",
+              "y",
+              "w",
+              "h",
+              "z",
+              "paper",
+              "style",
+              "text",
+              "image",
+              "createdAt",
+              "updatedAt"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "op",
+          "note"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "note.update"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "set": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number",
+                "minimum": -10000000,
+                "maximum": 10000000
+              },
+              "y": {
+                "type": "number",
+                "minimum": -10000000,
+                "maximum": 10000000
+              },
+              "w": {
+                "type": "number",
+                "minimum": 120,
+                "maximum": 2000
+              },
+              "h": {
+                "type": "number",
+                "minimum": 60,
+                "maximum": 4000
+              },
+              "z": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "paper": {
+                "type": "string",
+                "enum": [
+                  "cream",
+                  "rose",
+                  "apricot",
+                  "indigo",
+                  "sage",
+                  "lilac",
+                  "ochre",
+                  "ink"
+                ]
+              },
+              "style": {
+                "type": "string",
+                "enum": [
+                  "rustic",
+                  "smooth",
+                  "print"
+                ]
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 20000
+              },
+              "image": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "assetId": {
+                        "type": "string",
+                        "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                      },
+                      "frame": {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "print"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "assetId",
+                      "frame"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "motif": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "fold",
+                      "margin",
+                      "dots",
+                      "perforation"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "stamp": {
+                "anyOf": [
+                  {
+                    "type": "boolean",
+                    "const": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "layered": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "cream",
+                      "rose",
+                      "apricot",
+                      "indigo",
+                      "sage",
+                      "lilac",
+                      "ochre",
+                      "ink"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "from": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "book": {
+                        "type": "string",
+                        "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                      },
+                      "block": {
+                        "type": "string",
+                        "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                      }
+                    },
+                    "required": [
+                      "book",
+                      "block"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "ref": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "pattern": "^\\S(?:[\\s\\S]*\\S)?$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "op",
+          "id",
+          "set"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "note.delete"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          }
+        },
+        "required": [
+          "op",
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "yarn.create"
+          },
+          "yarn": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "yarn"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+              },
+              "noteIds": {
+                "minItems": 2,
+                "maxItems": 200,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                }
+              },
+              "color": {
+                "type": "string",
+                "enum": [
+                  "cream",
+                  "rose",
+                  "apricot",
+                  "indigo",
+                  "sage",
+                  "lilac",
+                  "ochre",
+                  "ink"
+                ]
+              },
+              "label": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "pins": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string",
+                  "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                },
+                "additionalProperties": {
+                  "type": "string",
+                  "pattern": "^[0-9A-Za-z_-]{1,32}$"
+                }
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "rev": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "noteIds",
+              "color",
+              "label",
+              "createdAt",
+              "updatedAt"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "op",
+          "yarn"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "yarn.update"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "set": {
+            "type": "object",
+            "properties": {
+              "color": {
+                "type": "string",
+                "enum": [
+                  "cream",
+                  "rose",
+                  "apricot",
+                  "indigo",
+                  "sage",
+                  "lilac",
+                  "ochre",
+                  "ink"
+                ]
+              },
+              "label": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "pins": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "pattern": "^[0-9A-Za-z_-]{1,32}$"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "op",
+          "id",
+          "set"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "yarn.insertNote"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "noteId": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "afterNoteId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "op",
+          "id",
+          "noteId",
+          "afterNoteId"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "yarn.removeNote"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "noteId": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          }
+        },
+        "required": [
+          "op",
+          "id",
+          "noteId"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "yarn.delete"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          }
+        },
+        "required": [
+          "op",
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "board.update"
+          },
+          "set": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "op",
+          "set"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "book.create"
+          },
+          "book": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "book"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "lang": {
+                "type": "string",
+                "enum": [
+                  "de",
+                  "en"
+                ]
+              },
+              "shelfPos": {
+                "type": "string",
+                "maxLength": 128,
+                "pattern": "^[0-9A-Za-z]*[1-9A-Za-z]$"
+              },
+              "cover": {
+                "type": "object",
+                "properties": {
+                  "seed": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "ink": {
+                    "type": "string",
+                    "enum": [
+                      "rose",
+                      "indigo",
+                      "sage",
+                      "lilac",
+                      "ochre",
+                      "ink"
+                    ]
+                  },
+                  "motif": {
+                    "type": "string",
+                    "enum": [
+                      "fields",
+                      "overprint",
+                      "contour"
+                    ]
+                  }
+                },
+                "required": [
+                  "seed",
+                  "ink",
+                  "motif"
+                ],
+                "additionalProperties": false
+              },
+              "trashedAt": {
+                "type": "null"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "rev": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "title",
+              "lang",
+              "shelfPos",
+              "cover",
+              "trashedAt",
+              "createdAt",
+              "updatedAt"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "op",
+          "book"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "book.update"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "set": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "lang": {
+                "type": "string",
+                "enum": [
+                  "de",
+                  "en"
+                ]
+              },
+              "shelfPos": {
+                "type": "string",
+                "maxLength": 128,
+                "pattern": "^[0-9A-Za-z]*[1-9A-Za-z]$"
+              },
+              "cover": {
+                "type": "object",
+                "properties": {
+                  "seed": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "ink": {
+                    "type": "string",
+                    "enum": [
+                      "rose",
+                      "indigo",
+                      "sage",
+                      "lilac",
+                      "ochre",
+                      "ink"
+                    ]
+                  },
+                  "motif": {
+                    "type": "string",
+                    "enum": [
+                      "fields",
+                      "overprint",
+                      "contour"
+                    ]
+                  }
+                },
+                "required": [
+                  "seed",
+                  "ink",
+                  "motif"
+                ],
+                "additionalProperties": false
+              },
+              "trashedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "op",
+          "id",
+          "set"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "block.create"
+          },
+          "block": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "block"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+              },
+              "bookId": {
+                "type": "string",
+                "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+              },
+              "pos": {
+                "type": "string",
+                "maxLength": 128,
+                "pattern": "^[0-9A-Za-z]*[1-9A-Za-z]$"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "p",
+                  "h1",
+                  "h2",
+                  "quote",
+                  "li",
+                  "prompt",
+                  "figure",
+                  "footnote"
+                ]
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 20000
+              },
+              "marks": {
+                "maxItems": 2000,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "t": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "b",
+                            "i"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "pattern": "^c:note_[0-9A-HJKMNP-TV-Z]{26}$"
+                        },
+                        {
+                          "type": "string",
+                          "pattern": "^n:block_[0-9A-HJKMNP-TV-Z]{26}$"
+                        }
+                      ]
+                    },
+                    "from": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "to": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "t",
+                    "from",
+                    "to"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "image": {
+                "type": "object",
+                "properties": {
+                  "assetId": {
+                    "type": "string",
+                    "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                  },
+                  "card": {
+                    "type": "string",
+                    "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                  }
+                },
+                "required": [
+                  "assetId"
+                ],
+                "additionalProperties": false
+              },
+              "rev": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "bookId",
+              "pos",
+              "kind",
+              "text",
+              "marks"
+            ],
+            "additionalProperties": false
+          },
+          "after": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "op",
+          "block"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "block.delete"
+          },
+          "bookId": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          }
+        },
+        "required": [
+          "op",
+          "bookId",
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "block.set"
+          },
+          "bookId": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "set": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "p",
+                  "h1",
+                  "h2",
+                  "quote",
+                  "li",
+                  "prompt",
+                  "figure",
+                  "footnote"
+                ]
+              },
+              "pos": {
+                "type": "string",
+                "maxLength": 128,
+                "pattern": "^[0-9A-Za-z]*[1-9A-Za-z]$"
+              },
+              "image": {
+                "type": "object",
+                "properties": {
+                  "assetId": {
+                    "type": "string",
+                    "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                  },
+                  "card": {
+                    "type": "string",
+                    "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+                  }
+                },
+                "required": [
+                  "assetId"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "after": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "op",
+          "bookId",
+          "id",
+          "set"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "block.edit"
+          },
+          "bookId": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "splices": {
+            "maxItems": 1000,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "at": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 20000
+                },
+                "del": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 20000
+                },
+                "ins": {
+                  "type": "string",
+                  "maxLength": 20000
+                }
+              },
+              "required": [
+                "at",
+                "del",
+                "ins"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "takes": {
+            "maxItems": 1000,
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "maxItems": 8,
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "b",
+                          "i"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^c:note_[0-9A-HJKMNP-TV-Z]{26}$"
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^n:block_[0-9A-HJKMNP-TV-Z]{26}$"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "addMarks": {
+            "maxItems": 2000,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "t": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "b",
+                        "i"
+                      ]
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^c:note_[0-9A-HJKMNP-TV-Z]{26}$"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^n:block_[0-9A-HJKMNP-TV-Z]{26}$"
+                    }
+                  ]
+                },
+                "from": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "to": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "t",
+                "from",
+                "to"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "removeMarks": {
+            "maxItems": 2000,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "t": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "b",
+                        "i"
+                      ]
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^c:note_[0-9A-HJKMNP-TV-Z]{26}$"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^n:block_[0-9A-HJKMNP-TV-Z]{26}$"
+                    }
+                  ]
+                },
+                "from": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "to": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "t",
+                "from",
+                "to"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "op",
+          "bookId",
+          "id",
+          "splices"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "block.split"
+          },
+          "bookId": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "at": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 20000
+          },
+          "newId": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "pos": {
+            "type": "string",
+            "maxLength": 128,
+            "pattern": "^[0-9A-Za-z]*[1-9A-Za-z]$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "p",
+              "h1",
+              "h2",
+              "quote",
+              "li",
+              "prompt",
+              "figure",
+              "footnote"
+            ]
+          }
+        },
+        "required": [
+          "op",
+          "bookId",
+          "id",
+          "at",
+          "newId",
+          "pos",
+          "kind"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "block.merge"
+          },
+          "bookId": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "from": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "into": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "at": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 20000
+          }
+        },
+        "required": [
+          "op",
+          "bookId",
+          "from",
+          "into",
+          "at"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "asset.add"
+          },
+          "asset": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "asset"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+              },
+              "mime": {
+                "type": "string",
+                "const": "image/webp"
+              },
+              "width": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "rev": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "type",
+              "id",
+              "mime",
+              "width",
+              "height",
+              "bytes",
+              "sha256",
+              "createdAt"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "op",
+          "asset"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "asset.remove"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          }
+        },
+        "required": [
+          "op",
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "block.purge"
+          },
+          "bookId": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "ids": {
+            "minItems": 1,
+            "maxItems": 500,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+            }
+          }
+        },
+        "required": [
+          "op",
+          "bookId",
+          "ids"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "book.purge"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          }
+        },
+        "required": [
+          "op",
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "book.cards"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+          },
+          "add": {
+            "maxItems": 60000,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+            }
+          },
+          "remove": {
+            "maxItems": 60000,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z]+_[0-9A-HJKMNP-TV-Z]{26}$"
+            }
+          }
+        },
+        "required": [
+          "op",
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    ]
+  }
+}

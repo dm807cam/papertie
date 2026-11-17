@@ -1,0 +1,159 @@
+:root {
+  /*
+   * Each web face is followed by its metric-matched local fallback (`fallbackFonts.css`): text waiting for a face is set at the face's own metrics, so nothing moves
+   * when it arrives.
+   */
+  --font-display: "Newsreader", "Newsreader Fallback", Georgia, serif;
+  --font-note: "Instrument Sans", "Instrument Sans Fallback", system-ui, sans-serif;
+  --font-hand: "Patrick Hand", "Patrick Hand Fallback", system-ui, sans-serif;
+  --font-italic: "Cormorant Garamond", "Cormorant Garamond Fallback", Georgia, serif;
+
+  /* The logo's own colours (ui/sidebarIcons.tsx `AppMark`): the P and its tie. */
+  --brand-crimson: #a21d45;
+  --brand-green: #86a755;
+
+  --text-size: 16px;
+  --text-leading: 1.6;
+
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-slow: 320ms;
+  /* biome-ignore format: the easing is written verbatim; tests assert the literal */
+  --ease: cubic-bezier(.2, .8, .2, 1);
+
+  /*
+   * Behind the cork: the board's viewport, the auth pages and the page itself, so a cold load
+   * goes straight from this to the cork. `public/stage.css` repeats it for the first paint.
+   */
+  --stage: #8b6b47;
+
+  /*
+   * The sidebar's room at the left of the board (ui/sidebar.css): its 52 px strip 14 px in, and
+   * 14 px of air beside it. The sheets laid over the board (Settings, the shelf, a book) keep
+   * clear of it, and their veils take every press in its gutters.
+   */
+  --sidebar-room: 80px;
+
+  /*
+   * The sidebar's paper (the panel, the mini-bar and the picker sheet that opens beside them):
+   * cream softened with white, a step warmer than the stationery's bright cream so the strip
+   * sits among the cards rather than over them.
+   */
+  --sidebar-paper: color-mix(in srgb, var(--paper-cream) 72%, #fff);
+
+  /*
+   * Screen-UI controls (the sidebar and mini-bar, the "+" sheet, the save dot and its popover, the
+   * focus chip, ⌘K, settings, the auth card, the notice slips): one hover, press and focus
+   * language, ink on fibre paper.
+   * - Hover moves the control's ink, quietly but visibly (1.15:1 or more, uiContrast.test):
+   *   a light control's icon, label or hairline darkens by `--hover-ink`,
+   *   `color-mix(in srgb, <ink>, #000 var(--hover-ink))`; an ink-filled button (ink, crimson,
+   *   the "+" disc, the save dot) lightens toward the paper by `--hover-ink-on-dark`.
+   * - Press inks the fibre paper itself: the paper under a quiet control takes `--press-wash`; an ink
+   *   button, already ink, sinks into the paper (its shadow settles to one layer).
+   * - Keyboard focus is the indigo ink ring, `--focus-outline` set `--focus-ring-offset` out.
+   */
+  --hover-ink: 15%;
+  --hover-ink-on-dark: 12%;
+  --press-wash: color-mix(in srgb, var(--ink-cream) 9%, transparent);
+  /* indigo's yarn dye, installed on :root from the palette by main.tsx. */
+  --focus-ring: var(--yarn-indigo);
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-outline: var(--focus-ring-width) solid var(--focus-ring);
+  /* The UI's ink on its paper: the cream paper's ink a little let down, and its muted second voice. */
+  --ui-ink: color-mix(in srgb, var(--ink-cream) 84%, var(--paper-cream));
+  --ui-muted: color-mix(in srgb, var(--ink-cream) 74%, var(--paper-cream));
+
+  /*
+   * A note under the pointer's press (note.css): it rises `--press-lift` and its shadow deepens
+   * to `--press-shadow` over `--motion-fast`, transform and opacity only.
+   */
+  --press-lift: 1px;
+  --press-shadow:
+    0 5px 6px rgb(40 24 8 / 0.2), 0 13px 21px rgb(40 24 8 / 0.17), 0 26px 44px rgb(40 24 8 / 0.13);
+
+  /*
+   * The fibre paper: `--fibre-<paper>` is the paper with its fibre already on it, `--fibre` the
+   * overlay alone, for the UI's stationery (tools/make-textures.ts). One 512 px file each for
+   * every screen: a tile is drawn at the board's zoom, so a 1x screen at zoom 2 needs every
+   * pixel a 2x screen does at zoom 1 (test/styles/textures.test.ts).
+   */
+  --fibre: url(/textures/fibre.webp);
+  --fibre-cream: url(/textures/fibre-cream.webp);
+  --fibre-rose: url(/textures/fibre-rose.webp);
+  --fibre-apricot: url(/textures/fibre-apricot.webp);
+  --fibre-indigo: url(/textures/fibre-indigo.webp);
+  --fibre-sage: url(/textures/fibre-sage.webp);
+  --fibre-lilac: url(/textures/fibre-lilac.webp);
+  --fibre-ochre: url(/textures/fibre-ochre.webp);
+  --fibre-ink: url(/textures/fibre-ink.webp);
+}
+
+/*
+ * Higher contrast, asked for by the system: the fibre paper loses its fibre (each paper is its plain
+ * colour, the overlay is gone) and the UI's let-down inks become full ink.
+ */
+@media (prefers-contrast: more) {
+  :root {
+    --ui-ink: var(--ink-cream);
+    --ui-muted: var(--ink-cream);
+    --fibre: none;
+    --fibre-cream: none;
+    --fibre-rose: none;
+    --fibre-apricot: none;
+    --fibre-indigo: none;
+    --fibre-sage: none;
+    --fibre-lilac: none;
+    --fibre-ochre: none;
+    --fibre-ink: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+    --motion-slow: 0ms;
+  }
+}
+
+:root[data-motion="reduced"] {
+  --motion-fast: 0ms;
+  --motion-base: 0ms;
+  --motion-slow: 0ms;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+html {
+  background: var(--stage);
+  /*
+   * No browser flash on a tap (Android Chrome's grey-blue box): a press shows in each control's
+   * own press state (`--press-wash`, or an ink button sinking), as it does under a mouse.
+   */
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  color: var(--ink-cream);
+  font-family: var(--font-note);
+  font-size: var(--text-size);
+  line-height: var(--text-leading);
+}
+
+:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}

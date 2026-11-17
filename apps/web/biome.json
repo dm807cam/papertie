@@ -1,0 +1,28 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.6.3/schema.json",
+  "root": false,
+  "extends": "//",
+  "files": { "includes": ["**", "!public/textures"] },
+  "overrides": [
+    {
+      "includes": ["src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@papertie/core/testing"],
+                    "message": "Test seams: the app keeps crypto's id bits and a random split seed."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

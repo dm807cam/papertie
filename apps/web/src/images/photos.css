@@ -1,0 +1,220 @@
+/*
+ * A note's photo: the preview while it is added, the moving line, Retry, and the real image
+ * arriving. Rustic and ink only; the shared motion; nothing moves at rest.
+ */
+.photo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  width: 100%;
+}
+
+.photo > .note-image {
+  flex: 1 0 auto;
+}
+
+/* The real image fades in once loaded (over the preview it replaces, if there is one). */
+.photo-real {
+  transition: opacity var(--motion-base) var(--ease);
+}
+
+.photo-real:not([data-loaded]) {
+  opacity: 0;
+}
+
+.photo-over {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Not in the board yet: a little quieter, as a print not yet pinned. */
+.photo-preview {
+  transition: opacity var(--motion-base) var(--ease);
+}
+
+.photo-preview[data-busy] {
+  opacity: 0.74;
+}
+
+/*
+ * Not stored yet: a 2 px hairline in the print's bottom border, under the photo. Its track shows
+ * from the first moment, and a stroke of ink passes along it, back and forth, for as long as
+ * the photo is being added: the store has the file at once and then processes it, so there is
+ * no part-way to show. Gone once stored.
+ */
+.photo-progress {
+  /* One pass of the stroke: slower than the UI's own motion, as a wait is. */
+  --photo-adding: 1400ms;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -7px;
+  height: 2px;
+  overflow: hidden;
+  /* At 3:1 or more on the print's stock; the stroke of ink on it, darker still. */
+  background: color-mix(in srgb, var(--ink-cream) 52%, var(--print-stock));
+  pointer-events: none;
+}
+
+.photo-progress > i {
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: var(--ink-cream);
+  animation: photo-adding var(--photo-adding) var(--ease) infinite alternate;
+}
+
+@keyframes photo-adding {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(150%);
+  }
+}
+
+/* Reduced motion: the stroke rests in the middle of its track. */
+@media (prefers-reduced-motion: reduce) {
+  .photo-progress > i {
+    transform: translateX(75%);
+    animation: none;
+  }
+}
+
+:root[data-motion="reduced"] .photo-progress > i {
+  transform: translateX(75%);
+  animation: none;
+}
+
+/* A slip of cream fibre paper pinned over the print, as the board's other notices. */
+.photo-slip {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px 10px;
+  max-width: calc(100% - 20px);
+  margin: 0;
+  padding: 9px 14px;
+  appearance: none;
+  border: 0;
+  border-radius: 2px;
+  transform: translateX(-50%);
+  background: var(--paper-cream);
+  color: var(--ink-cream);
+  font: 500 13px / 1.3 var(--font-note);
+  letter-spacing: 0.03em;
+  text-align: center;
+  box-shadow:
+    0 1px 1px rgb(40 24 8 / 0.18),
+    0 4px 8px rgb(40 24 8 / 0.14);
+}
+
+.photo-retry {
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease);
+}
+
+/* The UI's one language (tokens.css): hover deepens the ink, a press inks the fibre paper. */
+@media (hover: hover) {
+  .photo-retry:hover .photo-retry-act,
+  .photo-action:hover .photo-retry-act {
+    color: color-mix(in srgb, var(--yarn-indigo), #000 var(--hover-ink));
+  }
+}
+
+.photo-retry:active {
+  background: var(--press-wash);
+}
+
+.photo-retry:focus-visible,
+.photo-action:focus-visible,
+.photo-add:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.photo-action {
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.photo-retry-act {
+  color: var(--yarn-indigo);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/*
+ * A print with no photo and none coming: a quiet frame on the stock, with one way to add it.
+ * It is part of the note, not of the board's chrome, so it is only ink and paper.
+ */
+.photo-empty {
+  display: grid;
+  place-items: center;
+  min-height: 80px;
+  background: color-mix(in srgb, var(--ink-cream) 5%, var(--print-stock));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-cream) 12%, transparent);
+}
+
+.photo-add {
+  margin: 0;
+  padding: 8px 14px;
+  appearance: none;
+  border: 0;
+  border-radius: 2px;
+  background: var(--paper-cream);
+  color: var(--ink-cream);
+  font: 500 13px / 1.3 var(--font-note);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow:
+    0 1px 1px rgb(40 24 8 / 0.16),
+    0 3px 6px rgb(40 24 8 / 0.1);
+  transition: background-color var(--motion-fast) var(--ease);
+}
+
+/* A paper button whose label is already full ink: its paper takes the hover's darkening. */
+@media (hover: hover) {
+  .photo-add:hover {
+    background: color-mix(in srgb, var(--paper-cream), #000 var(--hover-ink));
+  }
+}
+
+.photo-action:active,
+.photo-add:active {
+  background: color-mix(in srgb, var(--ink-cream) 9%, var(--paper-cream));
+}
+
+/*
+ * Dropping photos on the board: a fine indigo-ink line inset in the cork and a breath of paper
+ * over it. The cork is under the notes, so nothing on the board is covered or shifted.
+ */
+.viewport > .cork::after {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  z-index: 10;
+  border-radius: 6px;
+  border: 1.5px solid color-mix(in srgb, var(--yarn-indigo) 55%, transparent);
+  background: color-mix(in srgb, var(--paper-cream) 9%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-base) var(--ease);
+}
+
+.viewport[data-drop] > .cork::after {
+  opacity: 1;
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@papertie/tools",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "exports": {
+    "./rng": "./src/rng.ts",
+    "./gen-board": "./src/genBoard.ts",
+    "./gen-book": "./src/genBook.ts",
+    "./ui-fonts": "./src/uiFonts.ts"
+  },
+  "scripts": {
+    "test": "vitest run --project tools",
+    "test:timing": "vitest run --project timing",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.e2e.json",
+    "make-textures": "tsx make-textures.ts",
+    "gen-board": "tsx gen-board.ts",
+    "font-metrics": "tsx font-metrics.ts"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "sharp": "0.35.5",
+    "tsx": "4.23.15"
+  },
+  "dependencies": {
+    "@papertie/core": "workspace:*"
+  }
+}

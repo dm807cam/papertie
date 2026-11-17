@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254" role="img" aria-label="Papertie">
+  <defs>
+    <linearGradient id="p" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#A21D45"/>
+      <stop offset="1" stop-color="#860F32"/>
+    </linearGradient>
+    <linearGradient id="tie" x1="0" y1="0" x2="1" y2="0.35">
+      <stop offset="0" stop-color="#93B25F"/>
+      <stop offset="1" stop-color="#7A9C4B"/>
+    </linearGradient>
+    <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5E0A22" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#5E0A22" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="stem"><path d="M495 560h106v160H495z"/></clipPath>
+  </defs>
+  <!-- The P: a stem and a bowl, one stroke of paper. -->
+  <path fill="url(#p)" fill-rule="evenodd" d="
+    M495 462 C495 401 544 352 605 352 H740 C827 352 897 422 897 509 V540
+    C897 584 881 624 855 655 C812 706 760 716 716 716 L716 620
+    C759 620 793 586 793 543 V535 C793 492 759 458 716 458 H601
+    V825 C601 869 565 905 521 905 C507 905 495 893 495 879 Z"/>
+  <!-- The tie's shadow on the stem. -->
+  <path clip-path="url(#stem)" fill="url(#shade)" d="M495 652h106v70H495z"/>
+  <!-- The tie: a ribbon across the stem and under the bowl. -->
+  <path fill="url(#tie)" d="
+    M336 738 V690 C352 618 420 562 500 562 C560 562 640 600 716 625
+    C770 643 815 655 855 655 C812 706 760 716 716 716
+    C640 716 570 655 500 655 C430 655 380 692 336 738 Z"/>
+</svg>

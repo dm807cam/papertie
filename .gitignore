@@ -1,0 +1,22 @@
+node_modules
+dist
+coverage
+*.tsbuildinfo
+.DS_Store
+.env*
+!.env.example
+
+# Local data and tooling
+/data
+.claude/
+.superpowers/
+
+# Desktop packages and per-target native parts
+/apps/desktop/release
+/apps/desktop/.targets
+
+# End-to-end runs: reports, screenshots' originals, bench results
+/e2e/test-results
+/e2e/playwright-report
+/e2e/artifacts
+/e2e/bench/results

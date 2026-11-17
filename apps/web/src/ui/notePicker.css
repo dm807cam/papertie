@@ -1,0 +1,319 @@
+/*
+ * The paper picker of "+" (in its picker sheet, pickerSheet.css): the papers are small sheets of
+ * the palette's paper, the decorations are drawn on sheets of the paper chosen (`--pick-paper`),
+ * and the layered sheet's colours unfold beneath them only when that decoration is chosen.
+ */
+/* The style: two pills of the same row, the chosen one sunk like the sidebar's active tool. */
+.note-picker-style {
+  min-width: 72px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font: 500 13px / 1 var(--font-note);
+  letter-spacing: 0.02em;
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .note-picker-style:hover {
+    color: color-mix(in srgb, var(--ui-ink), #000 var(--hover-ink));
+  }
+}
+
+.note-picker-style:active {
+  background: var(--press-wash);
+}
+
+.note-picker-style:has(:checked) {
+  background: color-mix(in srgb, var(--ink-cream) 8%, var(--paper-cream));
+  box-shadow: inset 0 1px 2px rgb(40 24 8 / 0.08);
+}
+
+.note-picker-style-name {
+  pointer-events: none;
+}
+
+/* The decoration chosen: the ink ring of the chosen paper. */
+.note-picker-tile:has(:checked) {
+  outline: 2px solid var(--ink-cream);
+  outline-offset: 2px;
+}
+
+/* A decoration, drawn small on a sheet of the chosen paper. */
+.note-picker-tile {
+  aspect-ratio: 1;
+  border-radius: 3px;
+}
+
+.note-picker-sample {
+  --pick-dot: color-mix(in srgb, var(--pick-ink) 34%, transparent);
+  --pick-flap: color-mix(in srgb, var(--pick-paper) 80%, #5a4630);
+  --pick-stamp: #c3352b;
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
+  background: var(--pick-paper) no-repeat;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-cream) 22%, transparent);
+  pointer-events: none;
+}
+
+/* On ink paper, as on the note: darker dots, a lighter flap, a lighter crimson. */
+.note-picker-sample[data-on="ink"] {
+  --pick-dot: rgb(0 0 0 / 0.55);
+  --pick-flap: color-mix(in srgb, var(--pick-paper) 84%, #fff);
+  --pick-stamp: #e0685c;
+}
+
+/* The corner turned down: the sheet cut along the crease, the flap lying on it. */
+.note-picker-sample[data-decoration="fold"] {
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  background-image: linear-gradient(to top right, var(--pick-flap) 50%, transparent 50%);
+  background-position: 100% 0;
+  background-size: 10px 10px;
+}
+
+/* Two hairlines of the paper's dye down the left. */
+.note-picker-sample[data-decoration="margin"] {
+  background-image: linear-gradient(
+    to right,
+    var(--pick-dye) 1px,
+    transparent 1px 3px,
+    var(--pick-dye) 3px
+  );
+  background-position: 7px 0;
+  background-size: 4px 100%;
+}
+
+.note-picker-sample[data-decoration="dots"] {
+  background-image: radial-gradient(circle, var(--pick-dot) 0.8px, transparent 1.2px);
+  background-position: 2px 2px;
+  background-size: 6px 6px;
+  background-repeat: repeat;
+}
+
+/* A row of punched holes over the line the sheet tears at. */
+.note-picker-sample[data-decoration="perforation"] {
+  background-image:
+    radial-gradient(circle, #9b7650 1.4px, transparent 1.9px),
+    repeating-linear-gradient(
+      to right,
+      color-mix(in srgb, var(--pick-ink) 50%, transparent) 0 2px,
+      transparent 2px 4px
+    );
+  background-position:
+    0 3px,
+    0 11px;
+  background-size:
+    6px 6px,
+    100% 1px;
+  background-repeat:
+    space no-repeat,
+    no-repeat;
+}
+
+.note-picker-stamp {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  color: var(--pick-stamp);
+}
+
+/* A second sheet of the chosen colour behind the paper, turned a little against it. */
+.note-picker-sample[data-decoration="layered"] {
+  inset: 2px 7px 7px 2px;
+  border-radius: 2px;
+}
+
+.note-picker-sample[data-decoration="layered"]::before {
+  content: "";
+  position: absolute;
+  inset: 3px -5px -5px 3px;
+  z-index: -1;
+  border-radius: 2px;
+  background: var(--pick-sheet);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-cream) 22%, transparent);
+  transform: rotate(-4deg);
+}
+
+.note-picker-tile:has(.note-picker-sample[data-decoration="layered"]) {
+  isolation: isolate;
+}
+
+/* Under the pointer the sample's hairline darkens, as a paper's does (pickerSheet.css). */
+@media (hover: hover) {
+  .note-picker-tile:hover .note-picker-sample,
+  .note-picker-tile:hover .note-picker-sample[data-decoration="layered"]::before {
+    box-shadow: inset 0 0 0 1px
+      color-mix(
+        in srgb,
+        color-mix(in srgb, var(--ink-cream) 26%, transparent),
+        #000 var(--hover-ink)
+      );
+  }
+}
+
+/* The sheet's colours: a row that unfolds under the decorations while a sheet is chosen. */
+.note-picker-sheets {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--motion-base) var(--ease),
+    opacity var(--motion-fast) var(--ease),
+    visibility 0s linear var(--motion-base);
+}
+
+.note-picker-sheets[data-open] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    grid-template-rows var(--motion-base) var(--ease),
+    opacity var(--motion-base) var(--ease),
+    visibility 0s;
+}
+
+/* The rings of its swatches stay inside what it clips. */
+.note-picker-sheets-inner {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 4px;
+  margin: 0 -4px;
+}
+
+.note-picker-sheets-inner > .sheet-row {
+  padding-top: 0;
+}
+
+.note-picker-sheets-inner .picker-choices {
+  padding: 4px 0 4px;
+}
+
+/* Pin: the ink button of the board's sheets, with the key that presses it. */
+.note-picker-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 38px;
+  margin: 2px 0 0;
+  padding: 0 14px;
+  appearance: none;
+  border: 0;
+  border-radius: 3px;
+  background: var(--ink-cream);
+  color: var(--paper-cream);
+  font: 500 14px / 1 var(--font-note);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow:
+    0 1px 1px rgb(40 24 8 / 0.18),
+    0 2px 6px rgb(40 24 8 / 0.12);
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    box-shadow var(--motion-fast) var(--ease);
+}
+
+/* The ink button: hover thins its ink toward the paper; pressed, it sinks into the sheet. */
+@media (hover: hover) {
+  .note-picker-pin:hover {
+    background: color-mix(in srgb, var(--ink-cream), var(--paper-cream) var(--hover-ink-on-dark));
+  }
+}
+
+.note-picker-pin:active {
+  box-shadow: 0 1px 1px rgb(40 24 8 / 0.18);
+}
+
+.note-picker-pin:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.note-picker-key {
+  font: 400 13px / 1 var(--font-note);
+  opacity: 0.7;
+}
+
+/* A touch screen has no Enter key to hint at (as ⌘K's key line and the focus chip's Esc). */
+@media (hover: none) {
+  .note-picker-key {
+    display: none;
+  }
+}
+
+/*
+ * A finger's size (as Yarn's colours, pickerSheet.css): opened from the mini-bar or on a touch
+ * screen, the papers, decorations and sheets are four to the row, each a 44 px-tall face, and the
+ * style pills and Pin are 44 px high.
+ */
+.note-picker[data-at="minibar"] .picker-choices[data-cols] {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.note-picker[data-at="minibar"] :is(.sheet-swatch, .note-picker-tile) {
+  aspect-ratio: auto;
+  height: 44px;
+}
+
+.note-picker[data-at="minibar"] :is(.note-picker-style, .note-picker-pin) {
+  height: 44px;
+}
+
+@media (pointer: coarse) {
+  .note-picker .picker-choices[data-cols] {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .note-picker :is(.sheet-swatch, .note-picker-tile) {
+    aspect-ratio: auto;
+    height: 44px;
+  }
+
+  .note-picker :is(.note-picker-style, .note-picker-pin) {
+    height: 44px;
+  }
+}
+
+/* Photo, the picker's last row on the narrowest phones (the mini-bar has no room for it there). */
+.note-picker-photo {
+  display: none;
+}
+
+@media (max-width: 359px) {
+  .note-picker-photo {
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    justify-content: start;
+    gap: 10px;
+    min-height: 44px;
+    margin: 8px 0 0;
+    padding: 0 6px;
+    border: 0;
+    border-top: 1px solid color-mix(in srgb, var(--ink-cream) 12%, transparent);
+    background: transparent;
+    color: var(--ui-ink);
+    font: 500 14px / 1 var(--font-note);
+    letter-spacing: 0.04em;
+    cursor: pointer;
+  }
+
+  .note-picker-photo:active {
+    background: var(--press-wash);
+  }
+
+  .note-picker-photo:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  .note-picker-photo .sidebar-icon {
+    width: 22px;
+    height: 22px;
+  }
+}

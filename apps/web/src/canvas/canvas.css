@@ -1,0 +1,326 @@
+/* Layers back to front: cork, world, yarn, pins, overlay, UI. */
+/*
+ * `clip`, not `hidden`: a clipped box is no scroll container, so a caret typed near an edge (or
+ * a focus) can never scroll the layers out from under the camera.
+ */
+/*
+ * The board and what lies beside it (the split view): one wrapper, the board's root first,
+ * an open book's pane after it. Split, the board shrinks beside the book (its runtime resizes
+ * through its own observer); full width, the book's pane lies over the board, under its UI layer
+ * (the sidebar, the mini-bar and the notice slips stay above it and in use, as in 2a). The board's
+ * root makes no stacking context of its own, so its layers and the pane stack together here.
+ */
+.board-split {
+  --book-share: 0.5;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  overflow: clip;
+}
+
+.viewport {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  touch-action: none;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  /* A long press on cork arms the marquee: no callout over it. */
+  -webkit-touch-callout: none;
+  background: var(--stage);
+}
+
+/* The board takes the focus back from its UI layer (it is made focusable then, by script). */
+.viewport:focus {
+  outline: none;
+}
+
+/*
+ * A wheel over the sidebar or the Settings sheet is not the camera's, and a sideways one chains
+ * to the page, where the browser's back/forward swipe would take the board away.
+ */
+html:has(.viewport) {
+  overscroll-behavior: none;
+}
+
+.viewport > .cork {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.viewport > .world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  transform-origin: 0 0;
+}
+
+/*
+ * An invisible backdrop under every note. While the world is composited (camera moving), the
+ * compositor gives each paint chunk its own layer when merging would leave a sparse layer, and a
+ * board's scattered notes then cost one layer each (26 ms of layerization per frame at 500 lite
+ * notes). Painting one rect across the board lets them all merge. Alpha 0.001 still records a
+ * paint but rasters to nothing. The world layer is drawn relative to the floating origin's
+ * anchor, and every mounted note lies well within 100,000 px of it.
+ */
+.viewport > .world::before {
+  content: "";
+  position: absolute;
+  left: -100000px;
+  top: -100000px;
+  width: 200000px;
+  height: 200000px;
+  background: rgb(0 0 0 / 0.001);
+  pointer-events: none;
+}
+
+/*
+ * Overview mounts no notes: the world is hidden, or the compositor would raster its backdrop
+ * over the whole viewport at the scale it kept while moving (from zoom 1 down to 0.02, about
+ * 64,000 x 36,000 px: one frame took 22 s).
+ */
+.viewport[data-lod="overview"] > .world {
+  display: none;
+}
+
+.viewport > .yarn-layer,
+.viewport > .pin-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.viewport > .yarn-layer {
+  z-index: 3;
+}
+
+.viewport[data-layer="under"] > .yarn-layer {
+  z-index: 1;
+}
+
+.viewport > .pin-layer {
+  z-index: 4;
+}
+
+.viewport > .overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.viewport > .ui {
+  position: absolute;
+  inset: 0;
+  /* Above a full-width book's pane (z 6, `writer.css`). */
+  z-index: 7;
+  pointer-events: none;
+}
+
+.board-split[data-layout="split"] > .viewport {
+  position: relative;
+  inset: auto;
+  flex: 1 1 0;
+  min-width: 360px;
+}
+
+/*
+ * A book full width over the board: of the board's UI only what stays in use beside a sheet is
+ * shown over it (the sidebar, the mini-bar, the notices, the save dot's popover, the live region);
+ * the rest (the empty board's hint, the focus chip, the strip) is under the book, as it was under
+ * 2a's veil.
+ */
+.board-split[data-layout="full"][data-book]
+  > .viewport
+  > .ui
+  > :not(.sidebar, .minibar, .sync-notices, .sync-live, .save-pop, .picker-sheet) {
+  visibility: hidden;
+}
+
+.viewport > .ui > * {
+  pointer-events: auto;
+}
+
+/*
+ * Under a sheet (Settings) the sidebar and the notice slips lie above its veil (z 1) and stay in
+ * use, its save-dot popover with them. Under 768 px the sheet fills the screen: its veil lies
+ * above them (`settings.css`), which are then inert.
+ */
+.viewport[data-covered] > .ui > :is(.sidebar, .minibar, .sync-notices) {
+  z-index: 2;
+}
+
+.viewport[data-space] {
+  cursor: grab;
+}
+
+.viewport[data-panning] {
+  cursor: grabbing;
+}
+
+/* Hit-test hover (set by the capture stage): pins connect, threads select. */
+.viewport[data-hover="pin"],
+.viewport[data-hover="pin"] * {
+  cursor: crosshair;
+}
+
+.viewport[data-hover="yarn"],
+.viewport[data-hover="yarn"] * {
+  cursor: pointer;
+}
+
+.viewport[data-tool="yarn"] .world {
+  cursor: crosshair;
+}
+
+/*
+ * Overview hides the world: a card under the pointer (`data-card`) takes a note's cursor, unless
+ * Space is held to pan.
+ */
+.viewport[data-lod="overview"][data-card][data-tool="yarn"]:not([data-space]) {
+  cursor: crosshair;
+}
+
+/*
+ * Selection frame and resize handles (positioned by SelectionOverlay), drawn like a graphite
+ * pencil mark around a sheet: an ink line 5 px outside the paper with a cream hairline either
+ * side. Two tones, so the mark stands at least 3:1 off what it lies on: the ink against paper,
+ * the cream against cork. The handles sit on the line: paper discs at the corners, short tabs on
+ * the right and bottom edges.
+ */
+.overlay > .selection {
+  --sel-gap: 5px;
+  --sel-ink: var(--ink-cream);
+  --sel-halo: var(--print-stock);
+  position: absolute;
+  left: 0;
+  top: 0;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+/* The selected note has the keyboard (writing, or focused by keys): the frame is its ring. */
+.overlay > .selection[data-focus] {
+  --sel-ink: var(--focus-ring);
+}
+
+.overlay > .selection::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--sel-gap));
+  border: 1.5px solid var(--sel-ink);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 0 1px var(--sel-halo),
+    0 0 0 1.5px var(--sel-halo);
+}
+
+.overlay > .selection[hidden] {
+  display: none;
+}
+
+/* The marquee's rubber band: a hairline of focus ink over a wash of it. */
+.overlay > .marquee {
+  position: absolute;
+  left: 0;
+  top: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--focus-ring);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--focus-ring) 9%, transparent);
+  pointer-events: none;
+}
+
+.overlay > .marquee[hidden] {
+  display: none;
+}
+
+/*
+ * A long press on cork (touch, pen) has armed the band: its top-left corner shows at the press,
+ * an ink L that fades in over `--motion-fast`, and the drag draws the band from it.
+ */
+.overlay > .marquee[data-armed] {
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-width: 2px;
+  border-radius: 2px 0 0;
+  background: none;
+  animation: marquee-arm var(--motion-fast) var(--ease);
+}
+
+@keyframes marquee-arm {
+  from {
+    opacity: 0;
+  }
+}
+
+.selection-handle {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--sel-ink);
+  border-radius: 50%;
+  background: var(--paper-cream);
+  box-shadow:
+    0 0 0 1px var(--sel-halo),
+    0 1px 2px rgb(40 24 8 / 0.3);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.selection-handle[data-handle="nw"] {
+  left: calc(-1 * var(--sel-gap));
+  top: calc(-1 * var(--sel-gap));
+  cursor: nwse-resize;
+}
+.selection-handle[data-handle="ne"] {
+  left: calc(100% + var(--sel-gap));
+  top: calc(-1 * var(--sel-gap));
+  cursor: nesw-resize;
+}
+.selection-handle[data-handle="sw"] {
+  left: calc(-1 * var(--sel-gap));
+  top: calc(100% + var(--sel-gap));
+  cursor: nesw-resize;
+}
+.selection-handle[data-handle="se"] {
+  left: calc(100% + var(--sel-gap));
+  top: calc(100% + var(--sel-gap));
+  cursor: nwse-resize;
+}
+.selection-handle[data-handle="e"] {
+  left: calc(100% + var(--sel-gap));
+  top: 50%;
+  width: 7px;
+  height: 16px;
+  margin: -8px 0 0 -3.5px;
+  border-radius: 4px;
+  cursor: ew-resize;
+}
+.selection-handle[data-handle="s"] {
+  left: 50%;
+  top: calc(100% + var(--sel-gap));
+  width: 16px;
+  height: 7px;
+  margin: -3.5px 0 0 -8px;
+  border-radius: 4px;
+  cursor: ns-resize;
+}
+
+.viewport[data-space] .selection-handle {
+  cursor: inherit;
+}
+
+/* The liquid bridge of a merge (MergeWatch): a small canvas sized to it, above the papers. */
+.overlay > .merge-bridge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}

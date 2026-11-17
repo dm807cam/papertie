@@ -1,0 +1,190 @@
+/*
+ * The sheet a sidebar picker opens in (the paper picker of "+", the colours of Yarn): the
+ * sidebar's own material (cream panel, soft shadow) beside the panel. Each row is a quiet
+ * hand-lettered title over its choices; every choice is a real radio over its whole face.
+ */
+/* It takes the focus only as the holder of a click on a choice (Safari); its choices show the ring. */
+.picker-sheet:focus {
+  outline: none;
+}
+
+.picker-sheet {
+  position: fixed;
+  z-index: 8;
+  padding: 14px 16px 16px;
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  border-radius: 18px;
+  background: var(--sidebar-paper);
+  color: var(--ui-ink);
+  box-shadow:
+    0 1px 2px rgb(40 24 8 / 0.16),
+    0 6px 14px rgb(40 24 8 / 0.16),
+    0 18px 40px rgb(40 24 8 / 0.14);
+  animation: picker-sheet-rise var(--motion-base) var(--ease);
+}
+
+@keyframes picker-sheet-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* As wide as eight papers (or dyes): every row ends at the same edge. */
+.picker-form {
+  display: grid;
+  width: calc(8 * 28px + 7 * 6px);
+  margin: 0;
+}
+
+.sheet-row {
+  display: grid;
+  gap: 8px;
+  min-inline-size: 0;
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+}
+
+/* A picker that ends on a row (Yarn's colours) ends on the sheet's own padding. */
+.picker-form > .sheet-row:last-child {
+  margin-bottom: 0;
+}
+
+.sheet-title {
+  font: 400 15px / 13px var(--font-hand);
+  letter-spacing: 0.04em;
+  color: var(--ui-muted);
+}
+
+.picker-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* A row of `cols` equal columns (`Row`'s `--cols`), which a sheet may set again for a finger. */
+.picker-choices[data-cols] {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+}
+
+.picker-choice {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  cursor: pointer;
+}
+
+/* The radio itself: invisible over the whole face, so the face is what is pressed and focused. */
+.picker-radio {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  appearance: none;
+  border-radius: inherit;
+  cursor: pointer;
+}
+
+.picker-radio:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* A paper: a small sheet with a hairline of ink, so the palest still reads on the panel. */
+.sheet-swatch {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--swatch);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-cream) 26%, transparent);
+}
+
+/* The paper or sheet chosen: an ink ring set off from it. */
+.sheet-swatch:has(:checked) {
+  outline: 2px solid var(--ink-cream);
+  outline-offset: 2px;
+}
+
+/*
+ * Under the pointer a sample's hairline darkens (the UI's hover: the control's own ink moves,
+ * no wash): a paper, a dye, a decoration (notePicker.css draws that one's sample).
+ */
+@media (hover: hover) {
+  .sheet-swatch:hover,
+  .picker-dye:hover::before {
+    box-shadow: inset 0 0 0 1px
+      color-mix(
+        in srgb,
+        color-mix(in srgb, var(--ink-cream) 26%, transparent),
+        #000 var(--hover-ink)
+      );
+  }
+}
+
+/*
+ * Yarn's dyes, eight to the row: each a round of the thread's own colour (the paler ones
+ * hairlined), the whole face of its radio, 28 px. Opened from the mini-bar, or on a touch screen,
+ * each is a finger's 44 px box around a 32 px round, four to the row.
+ */
+.yarn-picker .picker-choices {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+}
+
+.picker-dye {
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.picker-dye::before {
+  content: "";
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--swatch);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-cream) 26%, transparent);
+}
+
+/* The chosen dye: the ink ring set off from its round. */
+.picker-dye:has(:checked)::before {
+  outline: 2px solid var(--ink-cream);
+  outline-offset: 2px;
+}
+
+.yarn-picker[data-at="minibar"] .picker-choices {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.yarn-picker[data-at="minibar"] .picker-dye {
+  aspect-ratio: auto;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.yarn-picker[data-at="minibar"] .picker-dye::before {
+  width: 32px;
+  height: 32px;
+}
+
+@media (pointer: coarse) {
+  .yarn-picker .picker-choices {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .yarn-picker .picker-dye {
+    aspect-ratio: auto;
+    height: 44px;
+    border-radius: 12px;
+  }
+
+  .yarn-picker .picker-dye::before {
+    width: 32px;
+    height: 32px;
+  }
+}

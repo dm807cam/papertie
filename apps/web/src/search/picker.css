@@ -1,0 +1,234 @@
+/*
+ * The note picker and the ⌘K palette: a sheet of the board's own cream fibre paper (`.sync-paper`,
+ * from sync.css) with the auth card's field and the save popover's rhythm. Ink on paper, hairline
+ * rules, indigo-ink focus and selection; the sheet only ever grows downward, so nothing jumps.
+ */
+.search-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  padding: min(14vh, 120px) 16px 16px;
+  /* The stage's own brown, lightly: no blur and no glow. */
+  background: color-mix(in srgb, var(--stage) 30%, transparent);
+  animation: picker-veil var(--motion-base) var(--ease);
+}
+
+@keyframes picker-veil {
+  from {
+    background: transparent;
+  }
+}
+
+.picker {
+  width: min(560px, 100%);
+  padding: 18px 18px 12px;
+  font: 400 15px / 1.55 var(--font-note);
+  animation: sync-rise var(--motion-base) var(--ease);
+}
+
+/* Unseen (but holding the keyboard) until its first answer: it rises with its list. */
+.picker[data-waiting] {
+  opacity: 0;
+  animation: none;
+}
+
+.picker-title {
+  margin: 0 0 10px;
+  font: 600 16px / 1.4 var(--font-display);
+  letter-spacing: 0.01em;
+}
+
+.picker-input {
+  display: block;
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  padding: 0 12px;
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--ink-cream) 26%, var(--paper-cream));
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--print-stock) 62%, var(--paper-cream));
+  color: var(--sync-ink);
+  caret-color: var(--focus-ring);
+  /* 16 px keeps iOS from zooming into the field. */
+  font: 400 16px / 1.4 var(--font-note);
+  box-shadow: inset 0 1px 2px rgb(40 24 8 / 0.06);
+  transition: border-color var(--motion-fast) var(--ease);
+}
+
+.picker-input::placeholder {
+  color: var(--sync-muted);
+  opacity: 1;
+}
+
+/* The field's hairline is its ink: hover deepens it. Focus is the UI's indigo ring. */
+@media (hover: hover) {
+  .picker-input:hover {
+    border-color: color-mix(
+      in srgb,
+      color-mix(in srgb, var(--ink-cream) 26%, var(--paper-cream)),
+      #000 var(--hover-ink)
+    );
+  }
+}
+
+.picker-input:focus {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.picker-list {
+  max-height: min(52vh, 440px);
+  margin: 10px -6px 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ink-cream) 30%, transparent) transparent;
+}
+
+.picker-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease);
+}
+
+.picker-row[aria-selected="true"] {
+  background: color-mix(in srgb, var(--ink-cream) 8%, transparent);
+  box-shadow: inset 2px 0 0 var(--focus-ring);
+}
+
+/* A scrap of the note's own paper. */
+.picker-swatch {
+  flex: none;
+  width: 14px;
+  height: 18px;
+  margin-top: 4px;
+  border: 1px solid color-mix(in srgb, var(--ink-cream) 24%, transparent);
+  border-radius: 1px;
+  box-shadow: 0 1px 1px rgb(40 24 8 / 0.14);
+}
+
+.picker-text {
+  display: -webkit-box;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+
+.picker-row[data-blank] .picker-text {
+  color: var(--sync-muted);
+  font-family: var(--font-hand);
+}
+
+/* The match, inked in with the board's indigo wash. */
+.picker-mark {
+  padding: 0 1px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--focus-ring) 16%, transparent);
+  color: inherit;
+  font-weight: 600;
+}
+
+/* Read aloud always; shown only when there is nothing to list. */
+.picker-status {
+  margin: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.picker-status[data-empty] {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
+  padding: 12px 0 4px;
+  color: var(--sync-muted);
+  font-family: var(--font-hand);
+  text-align: center;
+}
+
+.picker-how {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin: 6px 0 0;
+}
+
+.picker-how-button {
+  padding: 4px 10px;
+  border: 1px solid var(--sync-rule);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--sync-ink);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    border-color var(--motion-fast) var(--ease);
+}
+
+/* The UI's hover (its hairline darkens) and press (the paper inks); a finger's 44 px on touch. */
+@media (hover: hover) {
+  .picker-how-button:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--sync-rule), #000 var(--hover-ink));
+  }
+}
+
+.picker-how-button:active:not(:disabled) {
+  background: var(--press-wash);
+}
+
+@media (pointer: coarse) {
+  .picker-how-button {
+    min-height: 44px;
+    padding: 0 16px;
+  }
+}
+
+.picker-how-button:disabled {
+  color: var(--sync-muted);
+  cursor: default;
+}
+
+.picker-how-button:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.picker-keys {
+  margin: 6px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--sync-rule);
+  color: var(--sync-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  white-space: pre;
+}
+
+/* A touch screen has no arrows to name. */
+@media (hover: none) {
+  .picker-keys {
+    display: none;
+  }
+}
