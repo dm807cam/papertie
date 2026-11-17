@@ -1,0 +1,72 @@
+/*
+ * The reverse view: a small paper slip beside a card's ink mark, listing
+ * the books using the card and the book it came from. Placed by the CSSOM (`CardUses.tsx`).
+ */
+/* The writer's popover fibre paper, as the chooser's and the find bar's (`.sync-paper`, sync.css). */
+.card-uses.sync-paper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 40;
+  min-width: 180px;
+  max-width: 280px;
+  padding: 10px 12px;
+  font: 13px / 1.45 var(--font-note);
+}
+
+.card-uses-part {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.card-uses-part + .card-uses-part {
+  margin-top: 8px;
+}
+
+.card-uses-head {
+  margin: 0 0 2px;
+  padding: 0;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: rgb(43 39 36 / 0.7);
+}
+
+.card-uses-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card-uses-book {
+  display: block;
+  width: 100%;
+  padding: 3px 0;
+  overflow: hidden;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Only a pointer that hovers leaves a hover (a tap would leave the crimson ink behind). */
+@media (hover: hover) {
+  .card-uses-book:hover {
+    color: var(--crimson, #b8364a);
+  }
+}
+
+.card-uses-book:active {
+  background: var(--press-wash);
+}
+
+.card-uses-book:focus-visible {
+  color: var(--crimson, #b8364a);
+  outline: 2px solid var(--crimson, #b8364a);
+  outline-offset: 1px;
+}

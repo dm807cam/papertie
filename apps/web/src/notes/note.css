@@ -1,0 +1,935 @@
+/*
+ * Paint order (see `.note`): an integer that inherits nowhere, so writing it restyles the note
+ * only, never the subtree of its text, decoration and image.
+ */
+@property --stack {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
+/* A node that is read aloud for the notes that refer to it, and never seen or laid out. */
+.note-selected-mark {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.note {
+  --note-paper: var(--paper-cream);
+  --note-ink: var(--ink-cream);
+  /* The paper with its fibre already on it (tokens.css); see "Rustic" below. */
+  --note-fibre: var(--fibre-cream);
+  /* The dye a decoration is ruled in: the paper's own yarn (crimson on cream, ochre on ink). */
+  --note-dye: var(--yarn-apricot);
+  /* The side of a folded corner (`data-motif="fold"`). */
+  --note-fold: 32px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  /*
+   * Paint order. The notes sit in the DOM in reading order (the tab order), so the runtime gives
+   * each mounted note --stack, its z (or its rank in z order where two notes share one); a note
+   * lifted by a drag sets z-index itself.
+   */
+  z-index: var(--stack);
+}
+
+/*
+ * Pressed (`data-pressed`, set by the runtime on the one note under the press): the paper (and
+ * its backing sheet) rises `--press-lift` off its shadow, which stays on the cork and deepens
+ * over `--motion-fast`; at the release it settles. Transform and opacity only: nothing is laid
+ * out, the note's own box does not move, and no other note is touched.
+ */
+.note > :is(.note-paper, .note-sheet) {
+  transition: translate var(--motion-fast) var(--ease);
+}
+
+.note[data-pressed] > :is(.note-paper, .note-sheet) {
+  translate: 0 calc(-1 * var(--press-lift));
+}
+
+.note[data-pressed]:not(.note--lite) .note-shadow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: var(--press-shadow);
+  pointer-events: none;
+  animation: press-deepen var(--motion-fast) var(--ease);
+}
+
+@keyframes press-deepen {
+  from {
+    opacity: 0;
+  }
+}
+
+.note[data-paper="rose"] {
+  --note-paper: var(--paper-rose);
+  --note-ink: var(--ink-rose);
+  --note-fibre: var(--fibre-rose);
+  --note-dye: var(--yarn-rose);
+}
+.note[data-paper="apricot"] {
+  --note-paper: var(--paper-apricot);
+  --note-ink: var(--ink-apricot);
+  --note-fibre: var(--fibre-apricot);
+  --note-dye: var(--yarn-apricot);
+  /* The side of a folded corner (`data-motif="fold"`). */
+  --note-fold: 32px;
+}
+.note[data-paper="indigo"] {
+  --note-paper: var(--paper-indigo);
+  --note-ink: var(--ink-indigo);
+  --note-fibre: var(--fibre-indigo);
+  --note-dye: var(--yarn-indigo);
+}
+.note[data-paper="sage"] {
+  --note-paper: var(--paper-sage);
+  --note-ink: var(--ink-sage);
+  --note-fibre: var(--fibre-sage);
+  --note-dye: var(--yarn-sage);
+}
+.note[data-paper="lilac"] {
+  --note-paper: var(--paper-lilac);
+  --note-ink: var(--ink-lilac);
+  --note-fibre: var(--fibre-lilac);
+  --note-dye: var(--yarn-lilac);
+}
+.note[data-paper="ochre"] {
+  --note-paper: var(--paper-ochre);
+  --note-ink: var(--ink-ochre);
+  --note-fibre: var(--fibre-ochre);
+  --note-dye: var(--yarn-ochre);
+}
+.note[data-paper="ink"] {
+  --note-paper: var(--paper-ink);
+  --note-ink: var(--ink-ink);
+  --note-fibre: var(--fibre-ink);
+  --note-dye: var(--yarn-ochre);
+}
+
+.note-shadow {
+  position: absolute;
+  inset: 3px 2px 0;
+  box-shadow:
+    0 1px 1px rgb(40 24 8 / 0.18),
+    0 4px 8px rgb(40 24 8 / 0.14),
+    0 12px 24px rgb(40 24 8 / 0.1);
+}
+
+.note-paper {
+  position: relative;
+  isolation: isolate;
+  background: var(--note-paper);
+  color: var(--note-ink);
+  font: 400 var(--text-size) / var(--text-leading) var(--font-note);
+  padding: 18px 26px 22px;
+  white-space: pre-wrap;
+  /* A word breaks only when it cannot fit a line of its own; soft hyphens are honoured. */
+  overflow-wrap: break-word;
+  hyphens: manual;
+}
+
+/* Rustic: fibre (at the end of this file) and a deckled edge. */
+
+@supports (-webkit-mask-box-image: none) {
+  /*
+   * A rotated 9-slice mask leaves anti-aliased hairlines where its slices meet, 12 px in from
+   * each edge. Paper colour on the shadow element, 9 px in (the deckle bites at most 8 px),
+   * fills them from behind without ever showing past the torn edge.
+   * The slices stretch: Chrome's tiled (`round`/`repeat`) path for SVG images blanks the edge
+   * slices at some raster scales (zoom 1.25-1.6, 2.5, 3), leaving straight strips.
+   * The masks are the deckle SVGs drawn at 4 px a unit (`deckle-N.webp`, tools/make-textures.ts):
+   * 48 bitmap px are the SVG's 12-unit slice, one device px a bitmap px at zoom 2 on DPR 2. A
+   * bitmap is sampled; an SVG mask was replayed, all 122 of its paths and 9 slices, into every
+   * raster tile of every fibre note (ADR-0003).
+   * The shadow box sits 8 px in, behind the deepest bite, so its edge never draws a straight
+   * line on the cork beside the torn one; only the soft falloff shows. Its layers reach a little
+   * further than the default to make up for the deeper inset.
+   */
+  .note--rustic:not(.note--lite) .note-shadow {
+    inset: 8px;
+    padding: 1px;
+    background: var(--note-paper) content-box;
+    box-shadow:
+      0 3px 4px rgb(40 24 8 / 0.2),
+      0 7px 12px rgb(40 24 8 / 0.16),
+      0 16px 28px rgb(40 24 8 / 0.12);
+  }
+  /*
+   * Under a folded corner the backing stops short of the cut, so the cork shows through it: the
+   * crease lies `--note-fold` from the paper's corner, the backing's own corner 9 px in each way.
+   */
+  .note--rustic[data-motif="fold"]:not(.note--lite) .note-shadow {
+    --cut: calc((var(--note-fold) - 18px) * 0.7071 + 0.8px);
+    background: linear-gradient(225deg, transparent var(--cut), var(--note-paper) var(--cut))
+      content-box;
+  }
+  .note--rustic.note--selected:not(.note--lite) .note-shadow {
+    box-shadow:
+      0 4px 5px rgb(40 24 8 / 0.2),
+      0 11px 18px rgb(40 24 8 / 0.17),
+      0 22px 38px rgb(40 24 8 / 0.13);
+  }
+  /* Hover, as below for every paper: one more class than that rule, so fibre paper keeps its own. */
+  @media (hover: hover) {
+    .viewport:is([data-tool="select"], [data-tool="yarn"]):not([data-panning], [data-space])
+      .note.note--rustic:not(.note--lite, .note--selected):hover
+      .note-shadow {
+      box-shadow:
+        0 3px 4px rgb(40 24 8 / 0.2),
+        0 9px 15px rgb(40 24 8 / 0.165),
+        0 19px 33px rgb(40 24 8 / 0.125);
+    }
+  }
+  .note--rustic:not(.note--lite)[data-mask="1"] .note-paper {
+    -webkit-mask-box-image: url(/textures/deckle-1.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite)[data-mask="2"] .note-paper {
+    -webkit-mask-box-image: url(/textures/deckle-2.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite)[data-mask="3"] .note-paper {
+    -webkit-mask-box-image: url(/textures/deckle-3.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite)[data-mask="4"] .note-paper {
+    -webkit-mask-box-image: url(/textures/deckle-4.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite)[data-mask="5"] .note-paper {
+    -webkit-mask-box-image: url(/textures/deckle-5.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite)[data-mask="6"] .note-paper {
+    -webkit-mask-box-image: url(/textures/deckle-6.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite)[data-mask="7"] .note-paper {
+    -webkit-mask-box-image: url(/textures/deckle-7.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite)[data-mask="8"] .note-paper {
+    -webkit-mask-box-image: url(/textures/deckle-8.webp) 48 fill / 12px stretch;
+  }
+  /* The layered backing sheet tears like its note: its own mask, shadow box and seam backing. */
+  .note--rustic:not(.note--lite) .note-sheet-shadow {
+    inset: 8px;
+    padding: 1px;
+    background: var(--sheet-paper) content-box;
+    box-shadow:
+      0 3px 4px rgb(40 24 8 / 0.2),
+      0 7px 12px rgb(40 24 8 / 0.16),
+      0 16px 28px rgb(40 24 8 / 0.12);
+  }
+  .note--rustic:not(.note--lite) .note-sheet[data-sheet-mask="1"] .note-sheet-paper {
+    -webkit-mask-box-image: url(/textures/deckle-1.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite) .note-sheet[data-sheet-mask="2"] .note-sheet-paper {
+    -webkit-mask-box-image: url(/textures/deckle-2.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite) .note-sheet[data-sheet-mask="3"] .note-sheet-paper {
+    -webkit-mask-box-image: url(/textures/deckle-3.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite) .note-sheet[data-sheet-mask="4"] .note-sheet-paper {
+    -webkit-mask-box-image: url(/textures/deckle-4.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite) .note-sheet[data-sheet-mask="5"] .note-sheet-paper {
+    -webkit-mask-box-image: url(/textures/deckle-5.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite) .note-sheet[data-sheet-mask="6"] .note-sheet-paper {
+    -webkit-mask-box-image: url(/textures/deckle-6.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite) .note-sheet[data-sheet-mask="7"] .note-sheet-paper {
+    -webkit-mask-box-image: url(/textures/deckle-7.webp) 48 fill / 12px stretch;
+  }
+  .note--rustic:not(.note--lite) .note-sheet[data-sheet-mask="8"] .note-sheet-paper {
+    -webkit-mask-box-image: url(/textures/deckle-8.webp) 48 fill / 12px stretch;
+  }
+}
+
+/* Lite: paper colour, greeked lines and a single soft shadow (the mask and fibre need full LOD). */
+.note--lite .note-shadow {
+  box-shadow: 0 1px 2px rgb(40 24 8 / 0.2);
+}
+
+.note-greek {
+  display: flex;
+  flex-direction: column;
+  gap: 1.05em;
+  padding-top: 0.5em;
+}
+
+.note-greek > span {
+  display: block;
+  height: 0.55em;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--note-ink) 25%, transparent);
+}
+
+.note-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+/* Smooth: fine cream stock with a straight, faintly lit edge. */
+.note--smooth .note-paper {
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
+}
+
+/*
+ * Print: a photo print on white stock: a 12 px border, the image filling the
+ * print down to the caption, and a stronger seeded tilt (`noteRotationDeg`).
+ */
+.note--print .note-paper {
+  --note-ink: var(--ink-cream);
+  display: flex;
+  flex-direction: column;
+  background: var(--print-stock);
+  border: 12px solid var(--print-stock);
+  padding: 0;
+}
+
+.note--print .note-image {
+  flex: 1 0 auto;
+  min-height: 0;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgb(40 24 8 / 0.06);
+}
+
+.note--print .note-text,
+.note--print .note-greek {
+  padding: 8px 2px 0;
+}
+
+.note--print .note-text > * {
+  font: italic 400 17px / 1.35 var(--font-italic);
+  font-synthesis: none;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--note-ink) 80%, var(--print-stock));
+  margin: 0;
+}
+
+.note--print .note-text:empty {
+  display: none;
+}
+
+.note--selected .note-shadow {
+  box-shadow:
+    0 2px 2px rgb(40 24 8 / 0.18),
+    0 8px 14px rgb(40 24 8 / 0.15),
+    0 18px 32px rgb(40 24 8 / 0.12);
+}
+
+/*
+ * Hover (select and yarn tools, not while panning): the sheet lifts a little, halfway to the
+ * selected lift. No transition, so a pointer sweeping across notes costs one repaint each.
+ */
+@media (hover: hover) {
+  .viewport:is([data-tool="select"], [data-tool="yarn"]):not([data-panning], [data-space])
+    .note:not(.note--lite, .note--selected):hover
+    .note-shadow {
+    box-shadow:
+      0 2px 2px rgb(40 24 8 / 0.18),
+      0 6px 11px rgb(40 24 8 / 0.15),
+      0 15px 28px rgb(40 24 8 / 0.11);
+  }
+}
+
+/*
+ * The editor (`SourceEditor`): the note's text as lines in the rendering's own classes, so the
+ * title, subtitle, bullets and body keep their faces, sizes and leading while writing. The field
+ * is a `.note-text` like the rendered one. Rules below that set the rendered text are shared
+ * with the editor's lines by selector, never copied.
+ */
+.note-edit {
+  position: relative;
+  outline: none;
+  cursor: text;
+  caret-color: currentColor;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.note-edit ::selection {
+  background: color-mix(in srgb, var(--focus-ring) 28%, transparent);
+}
+
+/*
+ * A body block's first line after the title: as `.note-title + .note-body` (gaps aside), and as
+ * specific, so a print's caption rule weighs on both alike.
+ */
+.note-text > .note-edit-after-head {
+  margin-top: 6px;
+}
+
+/*
+ * A gap (a blank line the rendering drops) lies out of the flow, taking no room, until the caret
+ * first enters it.
+ */
+.note-edit-gap:not(.note-edit-gap--open) {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/*
+ * No ring of its own: the caret marks the field, and the selection frame is drawn in the focus
+ * ink while the note is written on or has the keyboard (`SelectionOverlay.setFocus`).
+ */
+.note-edit:focus-visible,
+.note:focus-visible {
+  outline: none;
+}
+
+/* Text: title, subtitle, bullets and body, parsed from the plain text (rendering only). */
+.note-title {
+  font: 600 30px / 1.3 var(--font-display);
+  margin: 10px 0 2px;
+}
+
+.note--heading .note-text {
+  text-align: center;
+  padding-bottom: 8px;
+}
+
+/*
+ * Room from a side of the paper that carries an edge pin (`data-pin-sides`, from `EdgeSides`),
+ * so the title never runs into the pin there: 34 px from the edge with the paper's 26 px (noteText
+ * `titleWidth`, which measures the title in it). A side with no pin keeps the paper's padding.
+ */
+.note-paper[data-pin-sides~="left"] .note-title {
+  padding-left: 8px;
+}
+
+.note-paper[data-pin-sides~="right"] .note-title {
+  padding-right: 8px;
+}
+
+.note--print .note-paper[data-pin-sides~="left"] .note-title {
+  padding-left: 16px;
+}
+
+.note--print .note-paper[data-pin-sides~="right"] .note-title {
+  padding-right: 16px;
+}
+
+/*
+ * The steps a title takes when its longest word does not fit (noteText `titleSize`): a
+ * pixel at a time, only as far as the word needs.
+ */
+.note-title--29 {
+  font-size: 29px;
+}
+
+.note-title--28 {
+  font-size: 28px;
+}
+
+.note-title--27 {
+  font-size: 27px;
+}
+
+.note-title--26 {
+  font-size: 26px;
+}
+
+.note-title--25 {
+  font-size: 25px;
+}
+
+.note-title--24 {
+  font-size: 24px;
+}
+
+.note-title--23 {
+  font-size: 23px;
+}
+
+.note-title--22 {
+  font-size: 22px;
+}
+
+.note-title--long {
+  font-size: 21px;
+}
+
+.note-subtitle {
+  font: italic 400 21px / 1.3 var(--font-italic);
+  font-synthesis: none;
+  letter-spacing: 0.04em;
+  /* At least 4.9:1 on every paper (test/noteText.test.ts), softer than the 7:1 ink. */
+  color: color-mix(in srgb, var(--note-ink) 72%, var(--note-paper));
+  margin: 0 0 4px;
+}
+
+.note-bullets {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.note-bullets,
+.note-edit-bullet {
+  font: 500 17px / 1.9 var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.note-edit-bullet--first {
+  margin-top: 10px;
+}
+
+.note-bullets > li,
+.note-edit-bullet {
+  position: relative;
+  padding-left: 1.35em;
+}
+
+.note-bullets > li::before,
+.note-edit-bullet::before {
+  content: "•";
+  position: absolute;
+  left: 0.15em;
+}
+
+.note-title + .note-body,
+.note-subtitle + .note-body {
+  margin-top: 6px;
+}
+
+.note-greek--titled > span:first-child {
+  height: 0.95em;
+  margin-bottom: 0.2em;
+}
+
+/*
+ * Decoration: one of four drawn on the paper (a folded corner, a margin rule, a dot grid, a
+ * perforated edge) and the stamp, all under the text. They are CSS gradients and one small inline
+ * SVG, in the note's own colours: no image is fetched and nothing is blended. Only the dot grid
+ * lies under the text; its dots keep the text at 7:1 or better on every paper
+ * (tools/test/decorContrast.test.ts on the papers' own sheets, e2e/study.spec.ts on the screen).
+ */
+.note-decor {
+  --decor-ground: var(--note-paper);
+  --decor-dot: color-mix(in srgb, var(--note-ink) 15%, transparent);
+  --decor-flap: color-mix(in srgb, var(--decor-ground) 84%, #5a4630);
+  --decor-flap-tip: color-mix(in srgb, var(--decor-ground) 74%, #5a4630);
+  --decor-stamp: #c3352b;
+  /* The cork seen through a punched hole. */
+  --decor-hole: #9b7650;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* A print's paper is its white stock, border included. */
+.note--print .note-decor {
+  --decor-ground: var(--print-stock);
+  inset: -12px;
+}
+
+.note--print.note--tag .note-decor {
+  inset: -24px -8px -8px;
+}
+
+/* A print's folded corner turns down over its photo. */
+.note--print[data-motif="fold"] .note-decor {
+  z-index: 1;
+}
+
+/* On ink the dots are pressed darker than the paper, so the light text gains contrast on them. */
+.note[data-paper="ink"]:not(.note--print) .note-decor {
+  --decor-dot: rgb(0 0 0 / 0.5);
+  --decor-flap: color-mix(in srgb, var(--decor-ground) 80%, #fff);
+  --decor-flap-tip: color-mix(in srgb, var(--decor-ground) 88%, #fff);
+  --decor-stamp: #e0685c;
+}
+
+.note-motif,
+.note-stamp {
+  position: absolute;
+  display: block;
+}
+
+/*
+ * Corner fold: the top right corner turned down. The paper is cut along the crease (with its
+ * torn edge, text and photo), and the flap, the paper's shaded back, lies over what it covers.
+ */
+.note-motif--fold {
+  top: 0;
+  right: 0;
+  width: var(--note-fold);
+  height: var(--note-fold);
+  border-bottom-left-radius: 2px;
+  background: linear-gradient(
+    to top right,
+    var(--decor-flap-tip),
+    var(--decor-flap) 50%,
+    transparent 50%
+  );
+  filter: drop-shadow(-0.5px 0.5px 0.75px rgb(40 24 8 / 0.28));
+}
+
+/*
+ * Margin rule: two hairlines of the paper's dye down the left, and everything on the paper kept
+ * to their right, so no text ever lies on them (on a tag they run in its own narrow margin).
+ */
+.note-motif--margin {
+  top: 0;
+  bottom: 0;
+  left: 27px;
+  width: 4px;
+  background: linear-gradient(
+    to right,
+    var(--note-dye) 1px,
+    transparent 1px 3px,
+    var(--note-dye) 3px
+  );
+  opacity: 0.85;
+}
+
+/*
+ * Dot grid: a 12 px grid of fine dots across the whole sheet, under the text. The subtitle, set
+ * in a softer ink than the text, is set stronger on it, so it keeps its 4.5:1 on a dot.
+ */
+.note-motif--dots {
+  inset: 0;
+  background:
+    radial-gradient(circle, var(--decor-dot) 0.8px, transparent 1.2px) 5px 5px / 12px 12px;
+}
+
+/* A print is a photograph on white stock: no grid is printed under its caption. */
+.note--print .note-motif--dots {
+  display: none;
+}
+
+/*
+ * Perforated edge: a row of punched holes along the top, spaced evenly whatever the width, and
+ * the dashed line the sheet would tear at; the text starts below it.
+ */
+.note-motif--perforation {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background:
+    repeating-linear-gradient(
+      to right,
+      color-mix(in srgb, var(--note-ink) 50%, transparent) 0 2px,
+      transparent 2px 4px
+    )
+    0 19px / 100% 1px no-repeat;
+}
+
+.note-motif--perforation::before {
+  content: "";
+  position: absolute;
+  inset: 4px 5px auto;
+  height: 10px;
+  background:
+    radial-gradient(circle at 50% 30%, rgb(40 24 8 / 0.34) 1.2px, transparent 2.6px),
+    radial-gradient(circle, var(--decor-hole) 2.1px, transparent 2.6px);
+  background-size: 10px 10px;
+  background-repeat: space no-repeat;
+}
+
+/* A print's photo covers the tear line: its holes are punched in the border above it. */
+.note--print .note-motif--perforation {
+  background: none;
+}
+
+/*
+ * The stamp: the string tie in crimson, in the paper's lower right corner (`StampMark`).
+ */
+.note-stamp {
+  right: 18px;
+  bottom: 16px;
+  width: 26px;
+  height: 26px;
+  color: var(--decor-stamp);
+  opacity: 0.92;
+}
+
+/*
+ * Pressed in once, as a stamp note is pinned here (`stampPress.ts`): from 1.04 to its size, its
+ * ink from 0.85 of its own to full, over `--motion-slow`. Under reduced motion the token is
+ * 0 ms: it is simply there.
+ */
+.note-stamp--press {
+  animation: stamp-press var(--motion-slow) var(--ease);
+}
+
+@keyframes stamp-press {
+  from {
+    scale: 1.04;
+    /* 0.85 of the stamp's 0.92. */
+    opacity: 0.782;
+  }
+}
+
+/* Layered paper: a second sheet behind the note, larger and turned a little against it. */
+.note-sheet {
+  position: absolute;
+  pointer-events: none;
+}
+
+.note-sheet-shadow {
+  position: absolute;
+  inset: 3px 2px 0;
+  box-shadow:
+    0 1px 1px rgb(40 24 8 / 0.18),
+    0 4px 8px rgb(40 24 8 / 0.14),
+    0 12px 24px rgb(40 24 8 / 0.1);
+}
+
+.note-sheet-paper {
+  position: absolute;
+  inset: 0;
+  background: var(--sheet-paper);
+}
+
+/*
+ * Its fibre: the overlay multiplied at 0.55, offset from the note's, drawn as the sheet's own
+ * paper (`--sheet-fibre`, as the note's above). Ink has no multiplied sheet of its own, so an ink
+ * sheet, and any sheet under the study's tuner, keeps the overlay.
+ */
+.note--rustic:not(.note--lite) .note-sheet-paper {
+  background: var(--sheet-fibre) 64px 32px / 256px var(--sheet-paper);
+}
+
+:root[data-palette-tuned] .note--rustic:not(.note--lite) .note-sheet-paper,
+.note--rustic:not(.note--lite) .note-sheet[data-sheet-paper="ink"] .note-sheet-paper {
+  background: var(--sheet-paper);
+}
+
+:root[data-palette-tuned] .note--rustic:not(.note--lite) .note-sheet-paper::after,
+.note--rustic:not(.note--lite) .note-sheet[data-sheet-paper="ink"] .note-sheet-paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--fibre) 64px 32px / 256px;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+
+.note--lite .note-sheet-shadow {
+  box-shadow: 0 1px 2px rgb(40 24 8 / 0.2);
+}
+
+/* Tag: a tall narrow tag on a brass hook, with a punched hole pressed in under the eyelet. */
+.note--tag .note-paper {
+  padding: 30px 14px 14px;
+}
+
+.note--tag .note-paper::before {
+  content: "";
+  position: absolute;
+  left: calc(50% - 8px);
+  top: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(40 24 8 / 0.5) 0 45%,
+    rgb(40 24 8 / 0.16) 55%,
+    rgb(255 255 255 / 0.22) 72%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.note--tag .note-title {
+  font-size: 18px;
+  margin-top: 0;
+}
+
+.note--tag .note-subtitle {
+  font-size: 15px;
+}
+
+.note--tag {
+  --note-fold: 22px;
+}
+
+/* On a tag the margin rule runs in the paper's own narrow margin, and the text stays put. */
+.note--tag .note-motif--margin {
+  left: 6px;
+}
+
+.note--print.note--tag .note-motif--margin {
+  left: 3px;
+}
+
+/* A tag is perforated below its eyelet: the hook's end tears off as a stub. */
+.note--tag .note-motif--perforation {
+  top: 18px;
+}
+
+/* A print tag's eyelet fills its top border: no row of holes is punched across it. */
+.note--print.note--tag .note-motif--perforation {
+  display: none;
+}
+
+.note--tag .note-stamp {
+  right: 10px;
+  bottom: 10px;
+  width: 20px;
+  height: 20px;
+}
+
+/* A print tag: the hook's eyelet sits in a deeper top border. */
+.note--print.note--tag .note-paper {
+  border-width: 24px 8px 8px;
+  padding: 0;
+}
+
+.note--print.note--tag .note-paper::before {
+  top: -18px;
+}
+
+/* A heading-only note: title (and subtitle) centred on the paper; never a tag, even mid-resize. */
+.note--heading:not(.note--tag) .note-paper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ---- The fibre (after the rules it must not be overridden by) ---- */
+
+/*
+ * The fibre is the overlay of `fibre.webp` at 0.55, multiplied (on ink 0.25, screened). It
+ * is drawn as each paper's own sheet (`--note-fibre`: `fibre-<paper>.webp`, that overlay already
+ * flattened onto the paper by tools/make-textures.ts), so a fibre note paints one opaque image and
+ * no blended layer above its text (ADR-0003: the blended layer cost every raster tile it touched).
+ * A decoration is drawn on that sheet as it is. Where the overlay lies over a photo, or the
+ * papers are not the palette's (the study's tuner, `data-palette-tuned`), the overlay is drawn.
+ */
+.note--rustic:not(.note--lite) .note-paper {
+  background: var(--note-fibre) 0 0 / 256px var(--note-paper);
+}
+
+.note--rustic:not(.note--lite)[data-photo] .note-paper {
+  background: var(--note-paper);
+}
+
+:root[data-palette-tuned] .note--rustic:not(.note--lite) .note-paper {
+  background: var(--note-paper);
+}
+
+.note--rustic:not(.note--lite)[data-photo] .note-paper::after,
+:root[data-palette-tuned] .note--rustic:not(.note--lite) .note-paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--fibre) 0 0 / 256px;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* The overlay on ink (over a photo, under the tuner) is screened. */
+.note--rustic[data-paper="ink"]:not(.note--lite)[data-photo] .note-paper::after {
+  mix-blend-mode: screen;
+  opacity: 0.25;
+}
+
+:root[data-palette-tuned] .note--rustic[data-paper="ink"]:not(.note--lite) .note-paper::after {
+  mix-blend-mode: screen;
+  opacity: 0.25;
+}
+
+/*
+ * The reverse mark: a small brush dot of the note's own ink in the paper's lower right
+ * corner, clear of the stamp, when a shelf book uses the card; fainter when the card came from a
+ * book on the shelf. A button (hover or a tap opens the books), drawn only at reading
+ * zooms: lite notes have none, and the overview's paint draws none (ADR-0003).
+ */
+.note-ink {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background-color: var(--note-ink);
+  -webkit-mask: url(/decor/ink-mark.svg) center / contain no-repeat;
+  mask: url(/decor/ink-mark.svg) center / contain no-repeat;
+  opacity: 0.78;
+  cursor: pointer;
+}
+
+.note-ink[data-ink="origin"] {
+  opacity: 0.42;
+}
+
+@media (hover: hover) {
+  .note-ink:hover {
+    opacity: 1;
+  }
+}
+
+.note-ink:focus-visible {
+  -webkit-mask: none;
+  mask: none;
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/*
+ * A note's reference: at the paper's bottom, under a
+ * hairline in the note's ink, in small type (its line breaks kept). Reading zooms only.
+ */
+.note {
+  --note-ref-rule: color-mix(in srgb, var(--note-ink) 28%, transparent);
+}
+
+.note-ref {
+  margin-top: 10px;
+  padding-top: 6px;
+  border-top: 1px solid var(--note-ref-rule);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+/* ---- The room a decoration takes on its paper (after the papers' own paddings) ---- */
+
+/* The folded corner is cut out of the paper, where the flap is drawn. */
+.note[data-motif="fold"]:not(.note--lite) .note-paper {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--note-fold)) 0,
+    100% var(--note-fold),
+    100% 100%,
+    0 100%
+  );
+}
+
+/* The margin rule keeps everything on the paper to its right. */
+.note[data-motif="margin"]:not(.note--print, .note--tag) .note-paper {
+  padding-left: 40px;
+}
+
+.note--print[data-motif="margin"]:not(.note--tag) :is(.note-text, .note-greek) {
+  padding-left: 28px;
+}
+
+/* On the dot grid the subtitle, set in a softer ink than the text, is set stronger: 4.5:1 on a dot. */
+.note[data-motif="dots"] .note-subtitle {
+  color: color-mix(in srgb, var(--note-ink) 86%, var(--note-paper));
+}
+
+/* The text starts below the tear line. */
+.note[data-motif="perforation"]:not(.note--print, .note--tag) .note-paper {
+  padding-top: 24px;
+}
+
+.note--tag[data-motif="perforation"]:not(.note--print) .note-paper {
+  padding-top: 44px;
+}

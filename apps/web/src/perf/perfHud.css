@@ -1,0 +1,47 @@
+.perf-hud {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  isolation: isolate;
+  padding: 10px 14px 10px 12px;
+  background: color-mix(in srgb, color-mix(in srgb, var(--paper-cream) 55%, #fff) 94%, transparent);
+  color: var(--ink-cream);
+  border-radius: 14px;
+  box-shadow:
+    0 1px 2px rgb(40 24 8 / 0.16),
+    0 6px 14px rgb(40 24 8 / 0.14);
+}
+
+/* Read-only: presses fall through to the board beneath. */
+.viewport > .ui > .perf-hud {
+  pointer-events: none;
+}
+
+.perf-hud-list {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2px 14px;
+  margin: 0;
+}
+
+.perf-hud-row {
+  display: contents;
+}
+
+.perf-hud-row > dt {
+  font: 400 14px / 16px var(--font-hand);
+  color: color-mix(in srgb, var(--ink-cream) 60%, var(--paper-cream));
+}
+
+.perf-hud-row > dd {
+  margin: 0;
+  min-width: 10ch;
+  font:
+    500 11px / 1.5 ui-monospace,
+    "SF Mono",
+    Menlo,
+    monospace;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: pre;
+}

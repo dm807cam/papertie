@@ -1,0 +1,104 @@
+# Papertie's packages, built from Linux in CI (.github/workflows/release.yml).
+# `pnpm --filter @papertie/desktop dist --<os> --<arch>` packs what
+# `pnpm --filter @papertie/web build && pnpm --filter @papertie/desktop build` built; docs/release.md
+# has the rest. The version is package.json's unless the command line gives one
+# (`-c.extraMetadata.version=1.2.3`, which the release workflow takes from the tag).
+appId: io.github.dm807cam.papertie
+productName: Papertie
+copyright: © 2026 The Papertie authors. GPL-3.0-or-later.
+directories:
+  output: release
+  buildResources: build
+# Every package says its OS and CPU: Papertie-1.2.3-mac-arm64.zip, Papertie-1.2.3-linux-x64.AppImage…
+artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+# No publish target and no auto-update files. The release workflow uploads the packages itself.
+# Without this, electron-builder guesses a GitHub target from the GITHUB_TOKEN in the job's
+# environment and tries to publish by itself.
+publish: null
+
+# The app is the bundle `scripts/build.mjs` makes, and sharp: nothing else is needed at run time
+# (no sources, tests, source maps or type files). The maps stay out: nothing reads them in the
+# packaged app, and the CI run's own build has them if a log's stack ever needs mapping.
+files:
+  - package.json
+  - dist/main.cjs
+  - dist/preload.cjs
+  - dist/icon.png
+  - dist/web/**
+  - "!dist/**/*.map"
+  # sharp's JS comes from the install; its native part is the target's (below), not this machine's.
+  - "!**/node_modules/@img/sharp-*{,/**}"
+  - "!**/node_modules/sharp/{src,install}{,/**}"
+  - "!**/node_modules/**/*.{md,map,d.ts,d.cts,d.mts}"
+  # The main process requires sharp: its ES module copy is never loaded.
+  - "!**/node_modules/sharp/dist/*.mjs"
+  # The target's own sharp packages, put there by scripts/beforePack.mjs.
+  - from: .targets/sharp/${os}-${arch}/node_modules
+    to: node_modules
+    filter: ["**/*", "!**/*.{md,h}"]
+beforePack: ./scripts/beforePack.mjs
+afterPack: ./scripts/afterPack.mjs
+# sharp loads its .node and libvips from disk: they cannot be read out of the asar.
+asarUnpack:
+  - "**/node_modules/sharp/**"
+  - "**/node_modules/@img/**"
+# sharp ships built: nothing is compiled for a target.
+npmRebuild: false
+nodeGypRebuild: false
+buildDependenciesFromSource: false
+
+fileAssociations:
+  - ext: papertie
+    name: Papertie board
+    description: A Papertie board
+    mimeType: application/x-papertie
+    role: Editor
+    rank: Owner
+    icon: icon
+
+mac:
+  target:
+    # A zip of the .app: a DMG cannot be made reliably on Linux.
+    - target: zip
+      arch: [arm64, x64]
+  category: public.app-category.productivity
+  icon: build/icon.icns
+  # Unsigned for now: electron-builder signs nothing, and scripts/afterPack.mjs ad-hoc signs the
+  # bundle, so macOS offers Open Anyway instead of calling it damaged.
+  identity: null
+  hardenedRuntime: false
+  gatekeeperAssess: false
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.ico
+  # Unsigned for now.
+  signAndEditExecutable: true
+nsis:
+  oneClick: true
+  perMachine: false
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  shortcutName: Papertie
+  # Uninstalling keeps the board: it lives in %APPDATA%\Papertie, not in the program's folder.
+  deleteAppDataOnUninstall: false
+
+linux:
+  target:
+    - target: AppImage
+      arch: [x64, arm64]
+    - target: deb
+      arch: [x64, arm64]
+  icon: build/icons
+  category: Office
+  synopsis: A private cork board and writer
+  description: Papertie, a private cork pinboard and writer, on this computer only.
+  maintainer: The Papertie authors
+  executableName: papertie
+  # The .desktop file is papertie.desktop, package.json's `desktopName`: Electron's app id and
+  # WM_CLASS on Linux, so the desktop ties the window to it.
+  syncDesktopName: true
+deb:
+  packageName: papertie

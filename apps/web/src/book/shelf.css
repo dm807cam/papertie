@@ -1,0 +1,866 @@
+/*
+ * The bookshelf: a case of light wood laid over the dimmed board, its
+ * shelves at a fixed pitch, the books standing face-out on them. The wood is drawn here in CSS
+ * alone (a warm oak ground, its grain and the boards of the back, the shelves' faces): no
+ * image. Only the case itself is drawn: no room, no light, no props. Nothing moves while it rests.
+ */
+.books-veil {
+  /* In the board's UI layer, between the dimmed canvas and the sidebar (`canvas.css`, z 2). */
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  /* The sidebar's room (`--sidebar-room`) is left clear. */
+  padding: 24px 24px 24px var(--sidebar-room);
+  background: color-mix(in srgb, var(--stage) 58%, transparent);
+  animation: books-veil var(--motion-slow) var(--ease);
+  touch-action: manipulation;
+}
+
+@keyframes books-veil {
+  from {
+    background: transparent;
+  }
+}
+
+/*
+ * The wood: a pale oak, its grain a little warmer, the boards' joints darker still. The case's
+ * back (`--wood-back`, the boards with their grain) is also the ground a book's page lies on in
+ * its pane (writer.css): one wood for the shelf and the manuscript.
+ */
+.shelf,
+.book-pane {
+  --wood: #d9bf98;
+  --wood-grain: rgb(122 82 42 / 0.055);
+  --wood-light: rgb(255 246 228 / 0.16);
+  --wood-joint: rgb(92 60 28 / 0.2);
+  --wood-back:
+    /* The back: boards about 230 px wide, each a shade of its own, their joints fine. */
+    repeating-linear-gradient(
+      90deg,
+      var(--wood-light) 0 1px,
+      transparent 1px calc(230px - 1px),
+      var(--wood-joint) calc(230px - 1px) 230px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgb(150 104 56 / 0.05) 0 230px,
+      transparent 230px 460px,
+      rgb(255 246 228 / 0.06) 460px 690px
+    ),
+    /* The grain: fine, uneven lines (periods that never quite meet again). */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 7px,
+      var(--wood-grain) 7px 8px,
+      transparent 8px 13px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 17px,
+      var(--wood-grain) 17px 19px,
+      transparent 19px 41px
+    ),
+    repeating-linear-gradient(
+      89.4deg,
+      transparent 0 61px,
+      rgb(122 82 42 / 0.05) 61px 64px,
+      transparent 64px 113px
+    ),
+    var(--wood);
+}
+
+.shelf {
+  --plank-top: #f3e6cb;
+  --plank-face: #d9bc8f;
+  --plank-face-low: #c9a573;
+  --plank-edge: #9c7a50;
+  --plank-grain: rgb(140 100 56 / 0.18);
+  --shelf-ink: #3a2a1c;
+  /* At least 4.5:1 on the back's darkest boards (the New book label, Recently deleted). */
+  --shelf-muted: color-mix(in srgb, var(--shelf-ink) 88%, var(--wood));
+  /* A book's size (ShelfScreen's WIDE and NARROW), and the shelves' pitch. */
+  --book-w: 120px;
+  --book-h: 173px;
+  --gap: 30px;
+  --headroom: 34px;
+  --plank: 20px;
+  --row: calc(var(--headroom) + var(--book-h) + var(--plank));
+  --inset: 44px;
+  --head: 76px;
+  position: relative;
+  width: min(1180px, 100%);
+  height: 100%;
+  outline: none;
+  border-radius: 7px;
+  overflow: hidden;
+  color: var(--shelf-ink);
+  background: var(--wood);
+  box-shadow:
+    0 1px 2px rgb(40 24 8 / 0.24),
+    0 10px 24px rgb(40 24 8 / 0.22),
+    0 30px 60px rgb(40 24 8 / 0.18);
+  animation: shelf-in var(--motion-slow) var(--ease);
+}
+
+@keyframes shelf-in {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+/* The case's own depth: its sides and top shade the back a little (over the scroll, never moving). */
+.shelf::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgb(92 60 28 / 0.28),
+    inset 0 14px 18px -12px rgb(60 36 14 / 0.4),
+    inset 14px 0 22px -18px rgb(60 36 14 / 0.36),
+    inset -14px 0 22px -18px rgb(60 36 14 / 0.36);
+}
+
+.shelf-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(92 60 28 / 0.35) transparent;
+}
+
+/*
+ * The wall: the back's boards with their grain, scrolling with the books. Its shelves are the
+ * list's (below): one every `--row`, down to the case's foot, empty ones under the last book.
+ */
+.shelf-wall {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: var(--head) 0 0;
+  background: var(--wood-back);
+}
+
+.shelf-heading {
+  position: absolute;
+  top: 26px;
+  left: var(--inset);
+  margin: 0;
+  font: 600 19px / 1 var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--shelf-ink);
+}
+
+/*
+ * The books, a row to each shelf, standing on it. The list fills the case down to its foot, and
+ * draws a shelf at the foot of every row: its lit top, its front with the grain running along, its
+ * underside, and the shade it throws on the back below.
+ */
+.shelf-books {
+  display: grid;
+  flex: 1 0 auto;
+  grid-template-columns: repeat(auto-fill, var(--book-w));
+  grid-auto-rows: var(--row);
+  align-content: start;
+  column-gap: var(--gap);
+  margin: 0;
+  padding: 0 var(--inset);
+  list-style: none;
+  touch-action: pan-y;
+  background:
+    linear-gradient(
+      to bottom,
+      transparent calc(var(--row) - var(--plank)),
+      var(--plank-top) calc(var(--row) - var(--plank)),
+      var(--plank-top) calc(var(--row) - var(--plank) + 3px),
+      var(--plank-face) calc(var(--row) - var(--plank) + 5px),
+      var(--plank-face-low) calc(var(--row) - 3px),
+      var(--plank-edge) calc(var(--row) - 1px),
+      rgb(70 44 18 / 0.7) var(--row)
+    )
+    0 0 / 100% var(--row) repeat-y,
+    /* The grain running along each shelf's front. */
+    linear-gradient(
+      to bottom,
+      transparent calc(var(--row) - var(--plank) + 8px),
+      var(--plank-grain) calc(var(--row) - var(--plank) + 8px),
+      transparent calc(var(--row) - var(--plank) + 9px),
+      transparent calc(var(--row) - 8px),
+      var(--plank-grain) calc(var(--row) - 8px),
+      transparent calc(var(--row) - 7px)
+    )
+    0 0 / 100% var(--row) repeat-y,
+    linear-gradient(to bottom, rgb(60 36 14 / 0.34), rgb(60 36 14 / 0.1) 9px, transparent 26px) 0
+    var(--row) / 100% var(--row) repeat-y;
+}
+
+.shelf-book,
+.shelf-new {
+  position: relative;
+  align-self: end;
+  width: var(--book-w);
+  height: var(--book-h);
+  margin-bottom: var(--plank);
+}
+
+.shelf-open {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 1px 3px 3px 1px;
+  background: none;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  transition: translate var(--motion-fast) var(--ease);
+}
+
+/* The cover as it stands: its spine's fold, its foot on the shelf, a soft shade on the back. */
+.shelf-cover {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 1px 3px 3px 1px;
+  background: var(--paper-cream) var(--fibre-cream) 0 0 / 256px;
+  box-shadow:
+    inset 3px 0 4px -2px rgb(40 24 8 / 0.3),
+    0 1px 1px rgb(40 24 8 / 0.28),
+    5px 9px 14px -8px rgb(40 24 8 / 0.55);
+}
+
+.shelf-cover > .cover {
+  display: block;
+}
+
+.shelf-blank {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (hover: hover) {
+  .shelf-open:hover {
+    translate: 0 -2px;
+  }
+}
+
+.shelf-open:active {
+  translate: 0;
+}
+
+.shelf-open:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 4px;
+}
+
+/* Lifted while it is dragged; the others stand where they are. */
+.shelf-book[data-dragging] .shelf-open {
+  translate: 0 -8px;
+  cursor: grabbing;
+}
+
+.shelf-book[data-dragging] .shelf-cover {
+  box-shadow:
+    inset 3px 0 4px -2px rgb(40 24 8 / 0.3),
+    0 3px 4px rgb(40 24 8 / 0.24),
+    10px 22px 28px -12px rgb(40 24 8 / 0.5);
+}
+
+.shelf-books[data-dragging] {
+  cursor: grabbing;
+}
+
+/*
+ * A book's options: a small paper tab on the cover's top edge at its right, standing a little
+ * above it (above the title's margin, which starts lower). Its
+ * press is a whole 44 px, most of it in the air above the cover. Shown under a pointer that
+ * hovers, with the keyboard, and always where there is no hover (a finger). The press stands
+ * above the cover, only the tab over its edge: a tap on the cover is the book's.
+ */
+.shelf-more {
+  position: absolute;
+  top: -39px;
+  right: 0;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ui-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease);
+}
+
+/* The tab: 7 px above the cover's edge, 5 px over it (the press's foot). */
+.shelf-more::before,
+.shelf-more svg {
+  position: absolute;
+  top: 32px;
+  right: 9px;
+  width: 24px;
+  height: 12px;
+}
+
+.shelf-more::before {
+  content: "";
+  border-radius: 3px 3px 1px 1px;
+  background: color-mix(in srgb, var(--paper-cream) 72%, #fff) var(--fibre-cream) 0 0 / 256px;
+  box-shadow:
+    inset 0 0 0 0.5px rgb(40 24 8 / 0.2),
+    0 -1px 2px rgb(40 24 8 / 0.12);
+}
+
+.shelf-more svg {
+  fill: currentColor;
+}
+
+.shelf-book:hover .shelf-more,
+.shelf-book:focus-within .shelf-more,
+.shelf-more[aria-expanded="true"] {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .shelf-more {
+    opacity: 1;
+  }
+}
+
+.shelf-more:focus-visible {
+  outline: none;
+}
+
+.shelf-more:focus-visible::before {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .shelf-more:hover {
+    color: var(--ui-ink);
+  }
+}
+
+/* "New book": an empty place on the last shelf, drawn in pencil on the wood. */
+.shelf-new-button {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 1px dashed color-mix(in srgb, var(--shelf-ink) 38%, transparent);
+  border-radius: 3px;
+  background: rgb(255 248 236 / 0.12);
+  color: var(--shelf-muted);
+  font: 500 14px / 1.2 var(--font-note);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+
+.shelf-new-button .sidebar-icon {
+  width: 26px;
+  height: 26px;
+}
+
+@media (hover: hover) {
+  .shelf-new-button:hover {
+    color: var(--shelf-ink);
+    background: rgb(255 248 236 / 0.24);
+  }
+}
+
+.shelf-new-button:active {
+  background: var(--press-wash);
+}
+
+.shelf-new-button:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 4px;
+}
+
+/*
+ * An empty shelf's invitation: one line in the empty board's italic, in pencil, standing on the
+ * first shelf beside "New book" (level with the middle of its spine). It catches no pointer.
+ */
+.shelf-invite {
+  position: absolute;
+  top: calc(var(--head) + var(--row) - var(--plank) - var(--book-h) / 2);
+  left: calc(var(--inset) + var(--book-w) + var(--gap));
+  right: var(--inset);
+  margin: 0;
+  translate: 0 -50%;
+  /* Darker than --shelf-muted: at least 5:1 on the back's darkest boards (a thin italic). */
+  color: color-mix(in srgb, var(--shelf-ink) 90%, var(--wood));
+  font: italic 400 21px / 1.3 var(--font-italic);
+  font-synthesis: none;
+  letter-spacing: 0.03em;
+  pointer-events: none;
+}
+
+/* "Recently deleted": a quiet link in pencil, at the shelf's end. */
+.shelf-foot {
+  margin: 0;
+  padding: 2px var(--inset) 18px;
+  text-align: right;
+}
+
+.shelf-trash-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--shelf-muted);
+  font: 500 14px / 1.2 var(--font-note);
+  letter-spacing: 0.03em;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--shelf-muted) 45%, transparent);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .shelf-trash-link:hover {
+    color: var(--shelf-ink);
+  }
+}
+
+.shelf-trash-link:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---- over the shelf: the deleted books, and Delete's question --------------------------- */
+
+/* The picker sheet's material (a book's options open in one beside them): its paper and corner. */
+.shelf-trash,
+.shelf-ask {
+  border-radius: 18px;
+  background: var(--sidebar-paper);
+  color: var(--ui-ink);
+  box-shadow:
+    0 1px 2px rgb(40 24 8 / 0.16),
+    0 6px 14px rgb(40 24 8 / 0.16),
+    0 18px 40px rgb(40 24 8 / 0.14);
+  animation: picker-sheet-rise var(--motion-base) var(--ease);
+}
+
+.shelf-trash {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  z-index: 3;
+  width: min(440px, calc(100% - 32px));
+  max-height: calc(100% - 48px);
+  overflow: auto;
+  padding: 18px 20px 14px;
+  translate: -50% 0;
+  outline: none;
+}
+
+.shelf-trash-title {
+  margin: 0 0 8px;
+  font: 600 16px / 1.3 var(--font-display);
+  letter-spacing: 0.02em;
+  color: var(--ink-cream);
+}
+
+.shelf-trash-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shelf-trash-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink-cream) 12%, transparent);
+}
+
+.shelf-trash-name {
+  overflow: hidden;
+  font: 500 15px / 1.3 var(--font-display);
+  color: var(--ink-cream);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shelf-trash-left {
+  font: 400 13px / 1 var(--font-note);
+  color: var(--ui-muted);
+  white-space: nowrap;
+}
+
+.shelf-trash-back,
+.shelf-trash-done,
+.shelf-ask-button {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  color: var(--ink-cream);
+  font: 500 14px / 1 var(--font-note);
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease);
+}
+
+.shelf-trash-done {
+  display: block;
+  margin: 6px 0 0 auto;
+  color: var(--ui-muted);
+}
+
+@media (hover: hover) {
+  :is(.shelf-trash-back, .shelf-trash-done, .shelf-ask-button):hover {
+    color: color-mix(in srgb, var(--ink-cream), #000 var(--hover-ink));
+  }
+}
+
+:is(.shelf-trash-back, .shelf-trash-done, .shelf-ask-button):active {
+  background: var(--press-wash);
+}
+
+:is(.shelf-trash-back, .shelf-trash-done, .shelf-ask-button):focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 1px;
+}
+
+.shelf-ask-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(40 24 8 / 0.22);
+  animation: books-veil var(--motion-base) var(--ease);
+}
+
+.shelf-ask {
+  width: min(400px, 100%);
+  padding: 22px 22px 14px;
+}
+
+.shelf-ask-text {
+  margin: 0 0 14px;
+  font: 400 16px / 1.55 var(--font-note);
+  color: var(--ink-cream);
+  text-wrap: pretty;
+}
+
+.shelf-ask-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Delete in crimson ink: the one that cannot be read past. */
+.shelf-ask-button--delete {
+  background: color-mix(in srgb, var(--yarn-apricot) 86%, var(--ink-cream));
+  color: var(--paper-cream);
+  padding: 0 16px;
+}
+
+@media (hover: hover) {
+  .shelf-ask-button--delete:hover {
+    color: var(--paper-cream);
+    background: color-mix(
+      in srgb,
+      color-mix(in srgb, var(--yarn-apricot) 86%, var(--ink-cream)),
+      var(--paper-cream) var(--hover-ink-on-dark)
+    );
+  }
+}
+
+/* ---- a book's popover --------------------------------------------------------------------- */
+
+.book-popover-menu {
+  display: grid;
+  width: 220px;
+}
+
+.book-popover-row {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--ui-ink);
+  font: 500 14px / 1 var(--font-note);
+  letter-spacing: 0.02em;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+
+.book-popover-menu > .sheet-row {
+  margin: 8px 10px 10px;
+}
+
+/* The UI's hover (tokens.css): the row's own ink darkens, and lays no wash; a press washes. */
+@media (hover: hover) {
+  .book-popover-row:hover {
+    color: color-mix(in srgb, var(--ui-ink), #000 var(--hover-ink));
+  }
+
+  .book-popover-row[data-danger]:hover {
+    color: color-mix(in srgb, var(--yarn-apricot) 78%, var(--ink-cream));
+  }
+}
+
+.book-popover-row:active {
+  background: var(--press-wash);
+}
+
+.book-popover-row:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: -2px;
+}
+
+.book-popover-lang {
+  display: grid;
+  place-items: center;
+  min-height: 36px;
+  border-radius: 6px;
+  font: 500 13px / 1 var(--font-note);
+  color: var(--ui-muted);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-cream) 16%, transparent);
+}
+
+.book-popover-lang:has(:checked) {
+  color: var(--ink-cream);
+  background: color-mix(in srgb, var(--ink-cream) 7%, var(--paper-cream));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-cream) 40%, transparent);
+}
+
+@media (hover: hover) {
+  .book-popover-lang:not(:has(:checked)):hover {
+    color: color-mix(in srgb, var(--ui-muted), #000 var(--hover-ink));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-cream) 30%, transparent);
+  }
+}
+
+.book-popover-lang:not(:has(:checked)):active {
+  background: var(--press-wash);
+}
+
+.book-popover-lang:has(:focus-visible) {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+}
+
+/* Export's choices: Markdown · Word, one row of two equal chips, like the languages. */
+.book-popover-export {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  min-width: 0;
+  margin: 2px 10px 8px;
+  padding: 0;
+  border: 0;
+}
+
+.book-popover-choice {
+  display: grid;
+  place-items: center;
+  min-height: 36px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--ui-ink);
+  font: 500 13px / 1 var(--font-note);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-cream) 16%, transparent);
+  transition: background-color var(--motion-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .book-popover-choice:hover {
+    color: color-mix(in srgb, var(--ui-ink), #000 var(--hover-ink));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-cream) 34%, transparent);
+  }
+}
+
+.book-popover-choice:active,
+.book-popover-choice[data-pressed] {
+  background: var(--press-wash);
+}
+
+/* An export choice before the board is known: not a link yet. */
+.book-popover-choice[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.book-popover-choice:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+}
+
+/* A finger's 44 px. */
+@media (pointer: coarse) {
+  .book-popover-row,
+  .book-popover-lang,
+  .book-popover-choice {
+    min-height: 44px;
+  }
+}
+
+/* ---- a book, until the writer ---------------------------------------------------- */
+
+.book-sheet {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 18px;
+  width: min(760px, 100%);
+  height: 100%;
+  padding: 48px 64px;
+  outline: none;
+  border-radius: 4px;
+  background: #fbf7ef var(--fibre-cream) 0 0 / 256px;
+  color: var(--ink-cream);
+  box-shadow:
+    0 1px 2px rgb(40 24 8 / 0.2),
+    0 10px 24px rgb(40 24 8 / 0.18);
+  animation: shelf-in var(--motion-slow) var(--ease);
+}
+
+.book-title {
+  width: 100%;
+  padding: 4px 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: none;
+  color: var(--ink-cream);
+  font: 600 30px / 1.25 var(--font-display);
+  outline: none;
+}
+
+.book-title::placeholder {
+  color: color-mix(in srgb, var(--ink-cream) 45%, transparent);
+}
+
+.book-title:focus-visible {
+  border-bottom-color: color-mix(in srgb, var(--ink-cream) 30%, transparent);
+}
+
+/* ---- under 768 px: the whole screen, the mini-bar above it ------------------------------- */
+
+@media (max-width: 767px) {
+  .books-veil {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .shelf {
+    --book-w: 94px;
+    --book-h: 136px;
+    --gap: 14px;
+    --headroom: 30px;
+    --plank: 14px;
+    --inset: 16px;
+    --head: 64px;
+    width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .shelf-wall {
+    /* Clear of the mini-bar floating over the shelf's foot. */
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+
+  .shelf-heading {
+    top: 22px;
+    font-size: 17px;
+  }
+
+  .shelf-books {
+    justify-content: space-evenly;
+    column-gap: 12px;
+  }
+
+  /* "New book" stands alone in the middle: the line goes under it, on the back below the shelf. */
+  .shelf-invite {
+    top: calc(var(--head) + var(--row) + 14px);
+    left: var(--inset);
+    translate: none;
+    font-size: 19px;
+    text-align: center;
+  }
+
+  /* Above the mini-bar floating at the foot. */
+  .shelf-trash {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    max-height: calc(100% - 100px);
+  }
+
+  .book-sheet {
+    width: 100%;
+    border-radius: 0;
+    padding: 32px 22px calc(96px + env(safe-area-inset-bottom));
+  }
+}
+
+/*
+ * "Recently deleted" on a narrow phone (at 320 px a title was cut to
+ * "Winte…"): the title has the row's whole width, its days and "Put it back" on a line below.
+ */
+@media (max-width: 420px) {
+  .shelf-trash-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "name name"
+      "left back";
+    row-gap: 0;
+    padding-top: 10px;
+  }
+
+  .shelf-trash-name {
+    grid-area: name;
+    overflow: visible;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .shelf-trash-left {
+    grid-area: left;
+  }
+
+  .shelf-trash-back {
+    grid-area: back;
+  }
+}

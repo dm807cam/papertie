@@ -1,0 +1,86 @@
+/*
+ * The recovery slip: a strip of the board's cream fibre paper (`.sync-paper`) at the foot of the
+ * notices' stack (sync.css), in their type. It rests where it lands; nothing moves while it is
+ * read.
+ */
+.recovery {
+  width: 100%;
+  pointer-events: none;
+}
+
+.recovery-slip {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* Room on the right for the corner's Dismiss (sync.css `.sync-slip-close`). */
+  padding: 14px 40px 14px 18px;
+  pointer-events: auto;
+  rotate: -0.3deg;
+  animation: sync-rise var(--motion-base) var(--ease);
+}
+
+.recovery-text {
+  margin: 0;
+  font: 400 14px / 1.45 var(--font-note);
+  text-wrap: pretty;
+}
+
+.recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+
+.recovery-actions:empty {
+  display: none;
+}
+
+.recovery-slip .sync-text-button:disabled {
+  color: var(--sync-muted);
+  cursor: default;
+}
+
+/* Two columns of counts, hairline-ruled like the settings' rows. */
+.recovery-counts {
+  border-collapse: collapse;
+  font: 400 14px / 1.5 var(--font-note);
+  font-variant-numeric: tabular-nums;
+}
+
+.recovery-caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.recovery-counts th,
+.recovery-counts td {
+  padding: 4px 18px 4px 0;
+  text-align: left;
+  font-weight: 400;
+  border-bottom: 1px solid var(--sync-rule);
+}
+
+.recovery-counts thead th {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sync-muted);
+}
+
+.recovery-counts tbody th {
+  color: var(--sync-muted);
+}
+
+.recovery-error {
+  min-height: 0;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--sync-error);
+}
+
+.recovery-error:empty {
+  display: none;
+}

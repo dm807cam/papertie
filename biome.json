@@ -1,0 +1,80 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.6.3/schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": {
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/coverage",
+      "!.superpowers",
+      "!docs",
+      "!marketing",
+      "!pnpm-lock.yaml",
+      "!pnpm-workspace.yaml"
+    ]
+  },
+  "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },
+  "linter": { "enabled": true },
+  "javascript": {
+    "formatter": { "quoteStyle": "single", "semicolons": "asNeeded" }
+  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "overrides": [
+    {
+      "includes": ["apps/server/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@papertie/core/testing"],
+                    "message": "Test seams: the app keeps crypto's id bits and a random split seed."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/core/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "fs": "@papertie/core must stay browser-safe: no Node built-ins in src.",
+                  "path": "@papertie/core must stay browser-safe: no Node built-ins in src.",
+                  "crypto": "@papertie/core must stay browser-safe: no Node built-ins in src.",
+                  "buffer": "@papertie/core must stay browser-safe: no Node built-ins in src."
+                },
+                "patterns": [
+                  {
+                    "group": ["node:*"],
+                    "message": "@papertie/core must stay browser-safe: no Node built-ins in src."
+                  }
+                ]
+              }
+            },
+            "noRestrictedGlobals": {
+              "level": "error",
+              "options": {
+                "deniedGlobals": {
+                  "Buffer": "@papertie/core must stay browser-safe: no Buffer in src.",
+                  "process": "@papertie/core must stay browser-safe: no process in src."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

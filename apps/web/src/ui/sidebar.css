@@ -1,0 +1,678 @@
+/* The accent of the "+", on the panel and the mini-bar alike. */
+.sidebar,
+.minibar {
+  --sb-accent: color-mix(in srgb, var(--yarn-apricot) 80%, var(--yarn-rose));
+}
+
+/*
+ * The floating tool panel: a slim cream column on the left on a soft shadow (52 px wide, its
+ * buttons drawn at 36 px in 44 px press targets, `.sidebar-btn::after`).
+ * Spacing follows the viewport height, between its floors and ceilings.
+ * The strip is a tab as long as its tools, ending just under Settings, not a column
+ * down the window; at most it reaches `--sb-bottom` above the window's foot, and past that the
+ * paper scrolls. The panel is a frame around the paper (`.sidebar-sheet`) and its two shadows;
+ * folding never changes its size. Folded (`data-folded`), the paper rolls up to the mark: its
+ * clip rises over `--motion-slow` until there is as much paper under the mark as above it, while the panel's
+ * shadow gives way to the tile's and the tools fade first; unrolled, they fade back in once the
+ * paper is nearly down. Only the clip and opacities move: no layout per frame.
+ * Folded, the frame lets presses through to the board, but the tile (the clipped paper) takes
+ * them all; only the mark acts.
+ */
+.sidebar {
+  /*
+   * A button as drawn (its pressed pill, its hover); its press reaches `--sb-band` past each
+   * edge, so the target is 44 px. The gap keeps the bands from overlapping.
+   */
+  --sb-btn: 36px;
+  --sb-band: 4px;
+  --sb-gap: clamp(8px, 1vh, 10px);
+  --sb-rule: clamp(10px, 1.6vh, 15px);
+  --sb-top: clamp(12px, 4.7vh, 44px);
+  --sb-bottom: clamp(12px, 8vh, 76px);
+  --sb-pad: clamp(12px, 2vh, 18px);
+  --sb-mark: 28px;
+  --sb-radius: 16px;
+  /* The folded tile: the mark with as much paper under it as above. */
+  --sb-fold-h: calc(var(--sb-mark) + 2 * var(--sb-pad));
+  position: absolute;
+  /* Its room, gutters and all, is `--sidebar-room` (tokens.css): the sheets keep clear of it. */
+  left: 14px;
+  top: var(--sb-top);
+  display: flex;
+  flex-direction: column;
+  width: 52px;
+  max-height: calc(100% - var(--sb-top) - var(--sb-bottom));
+}
+
+/* Folded with something to say, the tile holds the save dot under the mark too. */
+.sidebar:has(
+  .sidebar-foot
+    .save-dot:is(
+      [data-status="offline"],
+      [data-status="error"],
+      [data-attention],
+      [aria-expanded="true"]
+    )
+) {
+  --sb-fold-h: calc(var(--sb-mark) + 2 * var(--sb-pad) + var(--sb-gap) + 28px);
+}
+
+.viewport > .ui > .sidebar[data-folded] {
+  pointer-events: none;
+}
+
+.sidebar-sheet {
+  position: relative;
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sb-gap);
+  padding: var(--sb-pad) 0 clamp(10px, 1.6vh, 14px);
+  /* Only when the window is too short for every tool (the clip rounds its corners). */
+  overflow: hidden auto;
+  scrollbar-width: none;
+  border-radius: var(--sb-radius);
+  background: var(--sidebar-paper);
+  color: var(--ui-ink);
+  clip-path: inset(0 0 0 0 round var(--sb-radius));
+  transition: clip-path var(--motion-slow) var(--ease);
+}
+
+.sidebar[data-folded] .sidebar-sheet {
+  clip-path: inset(0 0 calc(100% - var(--sb-fold-h)) 0 round var(--sb-radius));
+}
+
+/* The clip is the hit area too: the whole tile, never the board under it. */
+.sidebar[data-folded] .sidebar-sheet {
+  pointer-events: auto;
+}
+
+/*
+ * The panel's shadow and the tile's, crossing over for the whole roll, from its first frame: the
+ * paper always has one under it.
+ */
+.sidebar-shade {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--sb-radius);
+  /* A hairline and a low, soft lift: the strip lies on the board rather than standing off it. */
+  box-shadow:
+    0 0 0 0.5px rgb(40 24 8 / 0.09),
+    0 1px 1.5px rgb(40 24 8 / 0.07),
+    0 3px 10px rgb(40 24 8 / 0.07);
+  pointer-events: none;
+  transition: opacity var(--motion-slow) var(--ease);
+}
+
+.sidebar-shade--tile {
+  bottom: auto;
+  height: var(--sb-fold-h);
+  opacity: 0;
+}
+
+.sidebar[data-folded] .sidebar-shade {
+  opacity: 0;
+}
+
+.sidebar[data-folded] .sidebar-shade--tile {
+  opacity: 1;
+}
+
+/* The mark: a 40 px press target that keeps the 28 px mark's place in the column. */
+.sidebar-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: calc(var(--sb-mark) + 12px);
+  height: calc(var(--sb-mark) + 12px);
+  margin: -6px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--brand-crimson);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+
+/* The UI's one language (tokens.css): hover deepens the ink, a press inks the fibre paper. */
+@media (hover: hover) {
+  .sidebar-mark:hover {
+    color: color-mix(in srgb, var(--brand-crimson), #000 var(--hover-ink));
+  }
+}
+
+.sidebar-mark:active {
+  background: var(--press-wash);
+}
+
+.sidebar-mark:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* The P takes the button's colour (so hover deepens it); the tie keeps its green. */
+.sidebar-mark-svg {
+  width: var(--sb-mark);
+  height: var(--sb-mark);
+  fill: currentColor;
+}
+
+.sidebar-mark-tie {
+  fill: var(--brand-green);
+}
+
+/* Everything under the mark: it fades in after the paper unrolls, and out before it rolls up. */
+.sidebar-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: none;
+  width: 100%;
+  gap: var(--sb-gap);
+}
+
+.sidebar-body,
+.sidebar-foot,
+.sidebar-tail {
+  transition:
+    opacity var(--motion-base) var(--ease) var(--motion-fast),
+    visibility 0s;
+}
+
+/*
+ * The tools under the mark: the board's, or the writer's under a book (and beside it while the
+ * user works there). A switch fades the new ones in over `--motion-fast` (0 under reduced
+ * motion); the panel itself never changes size.
+ */
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: none;
+  width: 100%;
+  gap: var(--sb-gap);
+}
+
+.sidebar-group[data-swap] {
+  animation: sidebar-swap var(--motion-fast) var(--ease);
+}
+
+@keyframes sidebar-swap {
+  from {
+    opacity: 0;
+  }
+}
+
+.sidebar-tail {
+  display: grid;
+  place-items: center;
+  gap: var(--sb-gap);
+  flex: none;
+}
+
+.sidebar[data-folded] :is(.sidebar-body, .sidebar-foot, .sidebar-tail) {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--motion-fast) var(--ease),
+    visibility 0s linear var(--motion-fast);
+}
+
+/*
+ * Folded, a save dot with something to say rests on the tile, under the mark. It never jumps:
+ * it fades where it is, then (`data-foot`, a `--motion-fast` later) moves and fades in there.
+ */
+.sidebar[data-foot="tile"] .sidebar-foot {
+  position: absolute;
+  top: calc(var(--sb-pad) + var(--sb-mark) + var(--sb-gap));
+  left: 0;
+  right: 0;
+}
+
+.sidebar[data-foot="tile"]:not([data-folded]) .sidebar-foot {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--motion-fast) var(--ease),
+    visibility 0s linear var(--motion-fast);
+}
+
+.sidebar[data-folded][data-foot="tile"]:has(
+    .sidebar-foot
+      .save-dot:is(
+        [data-status="offline"],
+        [data-status="error"],
+        [data-attention],
+        [aria-expanded="true"]
+      )
+  )
+  .sidebar-foot {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--motion-base) var(--ease),
+    visibility 0s;
+}
+
+.sidebar-rule {
+  flex: none;
+  width: 20px;
+  height: 1px;
+  margin: calc(var(--sb-rule) - var(--sb-gap)) 0;
+  background: color-mix(in srgb, var(--yarn-rose) 34%, transparent);
+}
+
+.sidebar-btn {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--sb-btn);
+  height: var(--sb-btn);
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .sidebar-btn:hover {
+    color: color-mix(in srgb, var(--ui-ink), #000 var(--hover-ink));
+  }
+}
+
+.sidebar-btn:active {
+  background: var(--press-wash);
+}
+
+/* A tool whose sheet is open (Yarn's colours): quietly marked, as "+" is while its picker is. */
+.sidebar-btn[data-tool][aria-expanded="true"]:not([aria-pressed="true"]) {
+  background: color-mix(in srgb, var(--ink-cream) 5%, transparent);
+}
+
+.sidebar-btn[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--ink-cream) 8%, var(--paper-cream));
+  box-shadow: inset 0 1px 1.5px rgb(40 24 8 / 0.06);
+}
+
+/* Keyboard focus: the indigo ink ring, at least 3:1 on the panel (the "+" disc keeps it outside). */
+.sidebar-btn:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.sidebar-icon {
+  width: 27px;
+  height: 27px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sidebar-icon-fill {
+  fill: currentColor;
+}
+
+/* In the slim panel the icons are a size down, their line as fine (the 24-unit set at 20 px). */
+.sidebar .sidebar-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* The mini-bar's a size down from the 27 px set, their line as fine; its targets stay 44 px. */
+.minibar .sidebar-icon {
+  width: 23px;
+  height: 23px;
+}
+
+/*
+ * In the slim panel a button is drawn at `--sb-btn` (36 px) with a softer corner, and its press
+ * reaches `--sb-band` past each edge: an invisible band, so the target stays 44 px.
+ */
+.sidebar .sidebar-btn {
+  position: relative;
+  border-radius: 10px;
+}
+
+.sidebar .sidebar-btn::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--sb-band));
+  border-radius: 14px;
+}
+
+@media (hover: hover) {
+  /* Delete, under the pointer: crimson ink. */
+  .sidebar-btn[data-danger]:hover {
+    color: color-mix(in srgb, var(--yarn-apricot) 78%, var(--ink-cream));
+  }
+}
+
+/*
+ * The selection's section under the tools: it unfolds downward, lengthening the strip (its row
+ * grows from 0 over `--motion-base` while it fades in), so nothing above it moves; with
+ * no selection it folds away again and takes no press or focus (inert).
+ */
+.sidebar-selection,
+.minibar-selection {
+  display: grid;
+  grid-template-rows: 0fr;
+  flex: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--motion-base) var(--ease),
+    opacity var(--motion-fast) var(--ease),
+    visibility 0s linear var(--motion-base);
+}
+
+.sidebar-selection {
+  width: 100%;
+}
+
+.sidebar-selection[data-shown],
+.minibar-selection[data-shown] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    grid-template-rows var(--motion-base) var(--ease),
+    opacity var(--motion-base) var(--ease),
+    visibility 0s;
+}
+
+/* Folded with the panel, whatever is selected. */
+.sidebar[data-folded] .sidebar-selection {
+  visibility: hidden;
+}
+
+/* Its own focus rings stay inside what it clips. */
+.sidebar-selection-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sb-gap);
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: 4px;
+}
+
+/* The crimson "+": a disc that sits low on the panel, inside its own hit area. */
+.sidebar-add {
+  width: calc(var(--sb-btn) - 10px);
+  height: calc(var(--sb-btn) - 10px);
+  border-radius: 50%;
+  background: var(--sb-accent);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 1px 2px rgb(60 10 20 / 0.2),
+    0 3px 7px rgb(60 10 20 / 0.12);
+}
+
+.sidebar-add .sidebar-icon {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2;
+}
+
+/*
+ * In the slim panel the disc is 32 px and its "+" finer; the press reaches 6 px past its edge,
+ * so the target stays 44 px.
+ */
+.sidebar .sidebar-add {
+  width: min(32px, var(--sb-btn));
+  height: min(32px, var(--sb-btn));
+  border-radius: 50%;
+}
+
+.sidebar .sidebar-add::after {
+  inset: calc(-1 * var(--sb-band) - (var(--sb-btn) - min(32px, var(--sb-btn))) / 2);
+  border-radius: 50%;
+}
+
+.sidebar .sidebar-add .sidebar-icon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.75;
+}
+
+/*
+ * The disc stays crimson whatever the pointer does, a shade deeper under it and while its
+ * picker is open (a touch leaves no hover behind: the hover rules apply to pointers that hover).
+ */
+.sidebar-add[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--sb-accent), #000 var(--hover-ink));
+}
+
+/* An ink-filled button: under the pointer its crimson thins toward the paper. */
+@media (hover: hover) {
+  .sidebar-add:hover {
+    background: color-mix(in srgb, var(--sb-accent), var(--paper-cream) var(--hover-ink-on-dark));
+  }
+}
+
+/* Pressed, the disc sinks into the panel: its lift settles to the nearest shadow. */
+.sidebar-add:active {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 1px 1px rgb(60 10 20 / 0.22);
+}
+
+/*
+ * Under 768 px the sidebar is the mini-bar: a floating pill at the bottom left, the same
+ * material, every target 44 px. The selection's row unfolds above the tools, so the pill grows
+ * upward and the tools stay put.
+ */
+.minibar {
+  --sb-btn: 44px;
+  --sb-gap: 2px;
+  --sb-rule: 6px;
+  position: absolute;
+  left: max(10px, env(safe-area-inset-left));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  max-width: calc(100% - 20px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 6px;
+  border-radius: 28px;
+  background: var(--sidebar-paper);
+  color: var(--ui-ink);
+  /* The panel's shadow (above), a little deeper: it floats over the page as well as the cork. */
+  box-shadow:
+    0 0 0 0.5px rgb(40 24 8 / 0.09),
+    0 1px 2px rgb(40 24 8 / 0.08),
+    0 4px 14px rgb(40 24 8 / 0.09);
+}
+
+/* Its "+" a size down with its icons (above); every target stays 44 px. */
+.minibar .sidebar-add .sidebar-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.minibar-tools {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* A row of three, its rule beneath it across the pill; focus rings stay inside what it clips. */
+.minibar-selection {
+  align-self: stretch;
+}
+
+.minibar-selection .sidebar-selection-inner {
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 2px 0;
+}
+
+.minibar-selection .sidebar-rule {
+  order: 1;
+  flex-basis: 100%;
+  width: auto;
+  margin: 4px 2px;
+}
+
+/* Under a book, the writer's tools: a row above Books, Search and Settings, its rule beneath. */
+.minibar-writing {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  padding: 2px 2px 0;
+}
+
+.minibar-writing .sidebar-rule {
+  width: auto;
+  margin: 4px 2px;
+}
+
+/*
+ * What floats above the mini-bar in the UI layer (the focus chip, the notice slips) rises by
+ * `--minibar-rise` while the selection's row is out: a 44 px row, the 2 px gap and the 9 px rule
+ * under it, and its 2 px of air at the top. The test is on the UI layer only, never the board,
+ * so notes mounting as the camera moves never ask it again. The "Papertie was updated" slip sits
+ * outside the stage (over every screen) and rises the same: the mini-bar's selection row says on
+ * the page's root that it is out (`data-selection-row`, set by the UI layer itself), so no test
+ * reaches into the board for it either. The writer's row (a book on a phone) says it
+ * the same way (`data-writing-row`, set by the mini-bar).
+ */
+@media (max-width: 767px) {
+  .viewport > .ui:has(> .minibar .minibar-selection[data-shown]),
+  .viewport > .ui:has(> .minibar .minibar-writing),
+  :root[data-selection-row] .sync-updated,
+  :root[data-writing-row] .sync-updated {
+    --minibar-rise: 57px;
+  }
+}
+
+/*
+ * The save dot's slot at the pill's end, after Settings: its room is kept whether it shows or
+ * not, so nothing in the pill moves, it is never out on the board, and at rest it reads as the
+ * pill's end. Its press is a whole 44 px target.
+ */
+.minibar-foot {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--sb-btn);
+  height: var(--sb-btn);
+}
+
+.minibar-foot .save-dot {
+  width: var(--sb-btn);
+  height: var(--sb-btn);
+}
+
+/*
+ * Narrow phones (under 400 px, where Books joined the pill): no room for the slot, so the dot is a
+ * 6 px mark on Settings' corner (the tools' row places it, so the selection's row above never
+ * moves it). A mark only: it takes no press, and Settings keeps its whole target.
+ */
+@media (max-width: 399px) {
+  .minibar-foot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 1;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+  }
+
+  .minibar-foot .save-dot {
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+  }
+
+  .minibar-foot .save-dot-ink {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+/* The narrowest phones: Photo leaves the pill for the "+" picker's last row (notePicker.css). */
+@media (max-width: 359px) {
+  .minibar-tools > .minibar-photo {
+    display: none;
+  }
+}
+
+.minibar .sidebar-add {
+  width: var(--sb-btn);
+  height: var(--sb-btn);
+}
+
+/*
+ * Mid heights (laptops with browser chrome): below about 900 px the spacing settles to its
+ * floors, the bands still clear of each other, so Settings stays inside the panel.
+ */
+@media (max-height: 900px) {
+  .sidebar {
+    --sb-gap: 8px;
+    --sb-rule: clamp(10px, 1.4vh, 12px);
+    --sb-pad: clamp(10px, 1.6vh, 14px);
+  }
+}
+
+/* Short viewports: tighter items, so Settings never clips; scroll as a last resort. */
+@media (max-height: 620px) {
+  .sidebar {
+    --sb-btn: max(26px, 5.4vh);
+    /* The buttons are their own targets here, as before the slim panel: no band. */
+    --sb-band: 0px;
+    --sb-gap: 2px;
+    --sb-rule: 6px;
+    --sb-top: 12px;
+    --sb-bottom: 12px;
+    --sb-pad: 10px;
+    --sb-mark: 26px;
+  }
+
+  .sidebar-sheet {
+    padding-bottom: 8px;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .sidebar[data-folded] .sidebar-sheet {
+    overflow: hidden;
+  }
+
+  .sidebar-btn {
+    border-radius: 10px;
+  }
+
+  .sidebar-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* The "+" keeps a disc its icon fits in. */
+  .sidebar-add {
+    width: var(--sb-btn);
+    height: var(--sb-btn);
+    border-radius: 50%;
+  }
+
+  .sidebar-add .sidebar-icon {
+    width: 18px;
+    height: 18px;
+  }
+}

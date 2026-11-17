@@ -1,0 +1,185 @@
+# Papertie's release: a pushed tag `v*` builds the desktop app for macOS, Windows and Linux on a
+# Linux runner and publishes the packages, with their SHA-256 sums, as the tag's GitHub release.
+# "Run workflow" (workflow_dispatch) builds the same packages without releasing and keeps them as
+# the run's artifact. docs/release.md says how to cut a release.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # electron-builder's own image with Node 22 and wine, pinned to its digest (amd64 only). The
+    # wine is for the Windows build; electron-builder 26 also edits the .exe's resources without it.
+    container:
+      image: electronuserland/builder:22-wine-10.26@sha256:fffdaeced57f9734b405a7332d9df8d2b9e44ca0ccd102b94e58696031c2795f
+    timeout-minutes: 90
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    env:
+      # rcodesign (apple-codesign), which ad-hoc signs the Mac app from Linux: an exact release,
+      # checked against its SHA-256 before it is run. Not named RCODESIGN_*: rcodesign reads every
+      # variable with that prefix as its own setting and refuses the ones it doesn't know.
+      APPLE_CODESIGN_VERSION: "0.29.0"
+      APPLE_CODESIGN_SHA256: dbe85cedd8ee4217b64e9a0e4c2aef92ab8bcaaa41f20bde99781ff02e600002
+      CI: "true"
+      # Nothing is published by electron-builder itself, and nothing is signed with a certificate.
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    steps:
+      - name: Check out
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Version
+        id: version
+        shell: bash
+        run: |
+          case "$GITHUB_REF" in
+            refs/tags/v*) VERSION="${GITHUB_REF#refs/tags/v}" ;;
+            *) VERSION="$(node -p "require('./apps/desktop/package.json').version")-ci.${GITHUB_RUN_NUMBER}" ;;
+          esac
+          echo "Papertie $VERSION"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: pnpm
+        run: |
+          corepack enable pnpm
+          corepack prepare pnpm@9.15.9 --activate
+          pnpm --version
+
+      - name: Install
+        env:
+          # The tests need no Electron, and electron-builder fetches each target's own build.
+          ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
+        run: pnpm install --frozen-lockfile
+
+      # A quick gate, not the suite: the desktop app's unit tests (their bridge tests run the real
+      # store inside the app) and the typecheck. The whole suite runs in ci.yml on every push to
+      # main, and `pnpm test:crash` and the e2e projects on a developer's machine before a tag
+      # (docs/release.md).
+      - name: Test
+        run: |
+          pnpm --filter @papertie/desktop test
+          pnpm typecheck
+
+      - name: Build
+        run: |
+          pnpm --filter @papertie/web build
+          pnpm --filter @papertie/desktop build
+
+      - name: rcodesign
+        shell: bash
+        run: |
+          name="apple-codesign-${APPLE_CODESIGN_VERSION}-x86_64-unknown-linux-musl"
+          curl -fsSL -o /tmp/rcodesign.tar.gz \
+            "https://github.com/indygreg/apple-platform-rs/releases/download/apple-codesign/${APPLE_CODESIGN_VERSION}/${name}.tar.gz"
+          echo "${APPLE_CODESIGN_SHA256}  /tmp/rcodesign.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/rcodesign.tar.gz -C /tmp
+          install -m 0755 "/tmp/${name}/rcodesign" /usr/local/bin/rcodesign
+          rcodesign --version
+
+      - name: Linux (AppImage, deb; x64, arm64)
+        run: pnpm --filter @papertie/desktop dist --linux "-c.extraMetadata.version=$VERSION"
+
+      - name: Windows (NSIS, x64)
+        run: pnpm --filter @papertie/desktop dist --win "-c.extraMetadata.version=$VERSION"
+
+      - name: macOS (zip, arm64, x64; ad-hoc signed)
+        run: PAPERTIE_RCODESIGN=/usr/local/bin/rcodesign pnpm --filter @papertie/desktop dist --mac "-c.extraMetadata.version=$VERSION"
+
+      - name: Check the packages
+        run: node apps/desktop/scripts/checkPackages.mjs apps/desktop/release "$VERSION" --all
+
+      # The Linux x64 app, launched: the desktop tests run against the package just built, on a
+      # virtual display with a window manager (openbox: minimise and restore are real). As root
+      # in the container, Chromium needs --no-sandbox. A hosted runner is slower than a desk, so
+      # each expectation may wait 30 s.
+      - name: Linux x64 app, launched (the desktop tests)
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends xvfb xauth openbox libgtk-3-0 libnss3 \
+            libxss1 libasound2 libgbm1 libxshmfence1 libdrm2 > /dev/null
+          PAPERTIE_DESKTOP_EXE=apps/desktop/release/linux-unpacked/papertie \
+            PAPERTIE_DESKTOP_ARGS=--no-sandbox PAPERTIE_E2E_EXPECT_MS=30000 \
+            xvfb-run -a sh -c 'openbox & sleep 2; pnpm exec playwright test \
+              -c e2e/playwright.config.ts --project=desktop --reporter=line'
+
+      - name: SHA256SUMS
+        shell: bash
+        run: |
+          mkdir -p out
+          cp apps/desktop/release/Papertie-"$VERSION"-* out/
+          rm -f out/*.blockmap
+          cd out
+          sha256sum Papertie-* > SHA256SUMS
+          cat SHA256SUMS
+          ls -la
+
+      # The packages go to the release job (a tag) or stay as the run's artifact (a manual run).
+      - name: Keep the packages
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: papertie-${{ env.VERSION }}
+          path: out/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: ${{ startsWith(github.ref, 'refs/tags/v') && 7 || 30 }}
+
+  # The tag's GitHub release, with every package and SHA256SUMS attached. Its own job, so the
+  # token that may write the repository is never in the job that installs and runs dependencies.
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - name: The packages
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: papertie-${{ needs.build.outputs.version }}
+          path: out
+
+      - name: Check the sums
+        working-directory: out
+        run: sha256sum -c SHA256SUMS
+
+      # A tag with a hyphen (v1.1.0-beta.1) is a pre-release. A re-run of the same tag finds its
+      # release and replaces the files.
+      - name: Release
+        run: |
+          cat > notes.md <<'NOTES'
+          These builds are not code-signed yet, so each system asks once before it opens one:
+
+          - **macOS** (`mac-arm64` for Apple silicon, `mac-x64` for Intel): unzip, move Papertie to Applications and open it. When macOS says it cannot check the app, open System Settings → Privacy & Security and choose Open Anyway.
+          - **Windows** (`win-x64.exe`): when SmartScreen says it protected your PC, choose More info → Run anyway.
+          - **Linux** (`.AppImage` or `.deb`, `x86_64`/`amd64` or `arm64`): `chmod +x` the AppImage and run it, or install the .deb with `sudo apt install ./Papertie-….deb`.
+
+          `SHA256SUMS` lists every file's SHA-256 (`sha256sum -c SHA256SUMS`).
+          NOTES
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" out/* --clobber
+          else
+            prerelease=""
+            case "$TAG" in *-*) prerelease="--prerelease" ;; esac
+            gh release create "$TAG" out/* --verify-tag --title "Papertie $VERSION" \
+              --notes-file notes.md --generate-notes $prerelease
+          fi

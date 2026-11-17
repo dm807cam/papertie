@@ -1,0 +1,125 @@
+/*
+ * A note's ref while it is written on: the bottom of the editor, under
+ * the hairline the ref is shown under. "Add reference" is quiet (the ref's own small face, the
+ * ink at rest); the field is the ref as it reads, in the note's ink on the paper.
+ *
+ * Writing starting never moves or resizes the paper (e2e note-editor): "Add reference" takes no
+ * layout height (it hangs in the paper's bottom padding), and the field is laid out exactly as
+ * the shown `.note-ref` is (the same rule, face, leading and measure), grown to its lines by a
+ * hidden mirror of its text rather than by a row count.
+ */
+.note-ref-edit {
+  margin-top: 10px;
+  padding-top: 6px;
+  border-top: 1px solid var(--note-ref-rule);
+}
+
+/* No ref yet: a zero-height row under the text, "Add reference" hanging into the bottom padding. */
+.note-ref-edit--add {
+  height: 0;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.note-ref-add {
+  display: block;
+  height: 22px;
+  padding: 0 4px;
+  margin-left: -4px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--note-ink);
+  font: 400 12px / 22px var(--font-note);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* A tag's bottom padding is 14 px, a print's bottom border 12 px: the control fits in it. */
+.note--tag .note-ref-add {
+  height: 14px;
+  line-height: 14px;
+}
+
+.note--print .note-ref-add {
+  height: 12px;
+  font-size: 11px;
+  line-height: 12px;
+}
+
+/* The press target is at least 24 px tall however small the label sits (a tag, a print): an
+ * invisible band centred on the label, as the sidebar's "+" keeps its 44 px. */
+.note-ref-add {
+  position: relative;
+}
+
+.note-ref-add::before {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 24px;
+  transform: translateY(-50%);
+}
+
+/* Clear of an edge pin on the paper's left side, as the title is (note.css, `data-pin-sides`). */
+.note-paper[data-pin-sides~="left"] .note-ref-add {
+  margin-left: 4px;
+}
+
+/* A pointer that hovers only (a tap left the tint behind on touch); a press inks it deeper. */
+@media (hover: hover) {
+  .note-ref-add:hover {
+    background: color-mix(in srgb, var(--note-ink) 7%, transparent);
+  }
+}
+
+.note-ref-add:active {
+  background: color-mix(in srgb, var(--note-ink) 11%, transparent);
+}
+
+.note-ref-add:focus-visible,
+.note-ref-input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* The field and a mirror of its text in one cell: the mirror sizes it, line for line. */
+.note-ref-grow {
+  display: grid;
+}
+
+.note-ref-grow::after,
+.note-ref-input {
+  grid-area: 1 / 1;
+  min-width: 0;
+  font: 400 12px / 1.45 var(--font-note);
+  letter-spacing: normal;
+  text-align: start;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  hyphens: manual;
+}
+
+.note-ref-grow::after {
+  /* The trailing space keeps a last empty line (a ref ending in a line break) its height. */
+  content: attr(data-value) " ";
+  visibility: hidden;
+}
+
+/* Its tint and padding drawn outside the text's box: the text sits where the shown ref's does. */
+.note-ref-input {
+  align-self: stretch;
+  justify-self: stretch;
+  height: auto;
+  min-height: 0;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border: 0;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--note-ink) 5%, transparent);
+  color: var(--note-ink);
+  overflow: hidden;
+  resize: none;
+}

@@ -1,0 +1,110 @@
+/*
+ * A book's cover (CoverSvg.tsx): cream fibre paper with its fibre, the drawing printed on it, and
+ * the title in the display serif on the paper the drawing leaves bare. The wrapper takes its size
+ * from the drawing; the face over it is a size container, so the title's measure and type scale
+ * with the cover. The shelf's lighting and shadows are the shelf's, not the cover's.
+ */
+.cover {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  line-height: 0;
+  background: var(--paper-cream) var(--fibre-cream) 0 0 / 256px;
+  border-radius: 1px 2px 2px 1px;
+  overflow: hidden;
+}
+
+/* Each cover is cut from a different part of the sheet. */
+.cover--g1 {
+  background-position: -97px -41px;
+}
+.cover--g2 {
+  background-position: -163px -138px;
+}
+.cover--g3 {
+  background-position: -31px -201px;
+}
+
+/* Printed into the paper: multiplied, so the fibre shows through the ink. */
+.cover-art {
+  display: block;
+  mix-blend-mode: multiply;
+}
+
+/* A fields cover is colour to its edge, laid opaque: multiplied over the paper it would darken. */
+.cover--fields .cover-art {
+  mix-blend-mode: normal;
+}
+
+/* An overprint's inks darken where one crosses another. */
+.cover--overprint .cover-ink > * {
+  mix-blend-mode: multiply;
+}
+
+/* A size container: the title's margins and type are in `cqw`, so they scale with the cover. */
+.cover-face {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.cover--foot .cover-face {
+  justify-content: flex-end;
+}
+
+.cover--aside .cover-face {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.cover-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  margin: 12.5cqw 11.5cqw;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  color: var(--ink-cream);
+  line-height: 1.26;
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  /* Only a word too long for a line is hyphenated (CoverSvg sizes the title so most never are). */
+  hyphens: auto;
+  hyphenate-limit-chars: 10 4 4;
+}
+
+.cover--foot .cover-title {
+  margin-bottom: 13.5cqw;
+}
+
+.cover--aside .cover-title {
+  margin-left: 17cqw;
+}
+
+/* Three steps (CoverSvg's `titleStep`); the title never takes more than the top or bottom 37 %. */
+.cover-title--l {
+  font-size: 11.6cqw;
+  letter-spacing: 0.03em;
+}
+.cover-title--m {
+  font-size: 10.2cqw;
+}
+.cover-title--s {
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  font-size: 8.8cqw;
+  line-height: 1.22;
+  letter-spacing: 0.01em;
+}
+
+.cover-title--untitled {
+  color: var(--ui-muted);
+}

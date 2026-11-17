@@ -1,0 +1,136 @@
+/*
+ * The writing tools in the sidebar (and the mini-bar): the panel's own buttons (sidebar.css), in
+ * a column under the mark, or a row of the mini-bar; a control that waits for selected text is
+ * dimmed, never hidden, so nothing moves as a selection comes and goes. Text style's picker and
+ * the touch choice of Pin open in the panel's picker sheet (pickerSheet.css).
+ */
+.writing-tools {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sb-gap);
+}
+
+.writing-tools[data-bar="minibar"] {
+  flex-direction: row;
+  gap: 2px;
+}
+
+.writing-tools .sidebar-btn[aria-disabled="true"] {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.writing-tools .sidebar-btn[aria-disabled="true"]:active {
+  background: transparent;
+}
+
+/* Bold's B in a heavier line: it reads as what it does. */
+.writing-icon-bold {
+  stroke-width: 2.1;
+}
+
+/* Text style's picker: a short column of the kinds, each its mark and its name. */
+.writing-picker-form {
+  display: grid;
+  width: 176px;
+}
+
+.writing-picker .picker-choices {
+  display: grid;
+  gap: 2px;
+}
+
+.writing-choice {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  align-items: center;
+  justify-items: start;
+  gap: 12px;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: var(--ui-ink);
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+
+.writing-choice .sidebar-icon {
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+}
+
+.writing-choice-name {
+  font: 500 14px / 1 var(--font-note);
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .writing-choice:hover {
+    color: color-mix(in srgb, var(--ui-ink), #000 var(--hover-ink));
+  }
+}
+
+.writing-choice:active {
+  background: var(--press-wash);
+}
+
+/* The current kind: sunk like the sidebar's pressed tool. */
+.writing-choice:has(:checked) {
+  background: color-mix(in srgb, var(--ink-cream) 8%, var(--paper-cream));
+  box-shadow: inset 0 1px 1.5px rgb(40 24 8 / 0.06);
+}
+
+/* Pin's choice on touch: two quiet rows. */
+.writing-pin-choices {
+  display: grid;
+  gap: 2px;
+  width: 176px;
+}
+
+.writing-pin-choice {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ui-ink);
+  font: 500 14px / 1 var(--font-note);
+  letter-spacing: 0.02em;
+  text-align: start;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .writing-pin-choice:hover {
+    color: color-mix(in srgb, var(--ui-ink), #000 var(--hover-ink));
+  }
+}
+
+.writing-pin-choice:active {
+  background: var(--press-wash);
+}
+
+.writing-pin-choice:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* A finger's size in the mini-bar's sheet and on touch screens. */
+.writing-picker[data-at="minibar"] .writing-choice {
+  min-height: 44px;
+}
+
+@media (pointer: coarse) {
+  .writing-choice {
+    min-height: 44px;
+  }
+}
+
+/* Over a phone's keyboard, the mini-bar stands on it (`--keyboard`: the visual viewport's). */
+.minibar[data-sheet="book"] {
+  bottom: calc(max(12px, env(safe-area-inset-bottom)) + var(--keyboard, 0px));
+}

@@ -1,0 +1,139 @@
+/* The A/B strip, in the sidebar's material: a rounded cream panel with its soft shadow. */
+.controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2px 8px;
+  max-width: calc(100% - 136px);
+  padding: 5px 6px 5px 12px;
+  background: color-mix(in srgb, var(--paper-cream) 55%, #fff);
+  color: color-mix(in srgb, var(--ink-cream) 84%, var(--paper-cream));
+  font: 500 12px / 1 var(--font-note);
+  border-radius: 14px;
+  box-shadow:
+    0 1px 2px rgb(40 24 8 / 0.16),
+    0 6px 14px rgb(40 24 8 / 0.16),
+    0 18px 40px rgb(40 24 8 / 0.14);
+}
+
+.controls-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.controls-rule {
+  width: 1px;
+  height: 16px;
+  background: color-mix(in srgb, var(--ink-cream) 18%, transparent);
+}
+
+.controls-caption {
+  font: 400 14px / 12px var(--font-hand);
+  color: color-mix(in srgb, var(--ink-cream) 62%, var(--paper-cream));
+  padding: 0 6px 0 2px;
+}
+
+.controls-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .controls-btn:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--ink-cream) 5%, transparent);
+  }
+}
+
+/* Pressed like the sidebar's active tool: a pill sunk a little into the panel. */
+.controls-btn[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--ink-cream) 8%, var(--paper-cream));
+  box-shadow: inset 0 1px 2px rgb(40 24 8 / 0.08);
+}
+
+/* Keyboard focus: an ink ring, at least 3:1 on the panel and on the cork beyond it. */
+.controls-btn:focus-visible,
+.controls-select:focus-visible,
+.controls-check > input:focus-visible {
+  outline: 2px solid var(--ink-cream);
+  outline-offset: 2px;
+}
+
+.controls-btn:disabled {
+  cursor: default;
+  opacity: 0.42;
+}
+
+.controls-prefs {
+  gap: 10px;
+  padding-right: 4px;
+}
+
+.controls-field {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  cursor: pointer;
+}
+
+.controls-field > .controls-caption {
+  padding: 0 4px 0 0;
+}
+
+.controls-select {
+  height: 22px;
+  padding: 0 16px 0 6px;
+  border: 0;
+  border-radius: 8px;
+  appearance: none;
+  background:
+    linear-gradient(45deg, transparent 50%, currentColor 50%) right 8px top 9px / 4px 4px no-repeat,
+    linear-gradient(-45deg, transparent 50%, currentColor 50%) right 4px top 9px / 4px 4px no-repeat,
+    color-mix(in srgb, var(--ink-cream) 6%, transparent);
+  color: inherit;
+  font: 500 12px / 1 var(--font-note);
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .controls-select:hover {
+    background-color: color-mix(in srgb, var(--ink-cream) 11%, transparent);
+  }
+}
+
+.controls-check {
+  gap: 0;
+}
+
+.controls-check > input {
+  width: 13px;
+  height: 13px;
+  margin: 0 5px 0 0;
+  accent-color: var(--ink-cream);
+  cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .controls {
+    max-width: calc(100% - 84px);
+  }
+}

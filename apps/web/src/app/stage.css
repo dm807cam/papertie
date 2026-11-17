@@ -1,0 +1,196 @@
+/*
+ * The stage before the board: the board's cork, and on it, when there is something to say (the
+ * board could not open, say), one cream fibre note (the board's own `.note--rustic` paper) pinned
+ * centred. Its button is part of the same stationery: ink on paper, indigo-ink focus.
+ */
+.app-shell {
+  height: 100%;
+  background: var(--stage);
+}
+
+/* Over the shell's cork (`ShellCork`, fixed behind the page), so it shows through. */
+.stage {
+  --stage-ink: var(--ink-cream);
+  --stage-muted: var(--ui-muted);
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  padding: 56px 16px;
+}
+
+.stage-cork {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* `.note` places notes in world space; here the note sits in the page flow. */
+.stage-card.note {
+  position: relative;
+  left: auto;
+  top: auto;
+  width: min(420px, 100%);
+  transform: rotate(-0.4deg);
+  transform-origin: 50% 14px;
+}
+
+.stage-paper {
+  padding: 46px 36px 34px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* The hanging pin, top centre and 14 px down, as on every note. */
+.stage-pin {
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  margin-left: -10px;
+}
+
+.stage-mark {
+  margin: 0;
+  font: 500 14px / 1 var(--font-display);
+  letter-spacing: 0.32em;
+  color: var(--stage-muted);
+  text-align: center;
+}
+
+.stage-card .stage-title {
+  margin: 14px 0 22px;
+  font-size: 27px;
+  letter-spacing: 0.01em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.stage-lead {
+  margin: 0 0 22px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--stage-muted);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.stage-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 46px;
+  margin: 0;
+  padding: 0 18px;
+  appearance: none;
+  border: 0;
+  border-radius: 3px;
+  background: var(--ink-cream);
+  color: var(--paper-cream);
+  font: 500 15px / 1 var(--font-note);
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow:
+    0 1px 1px rgb(40 24 8 / 0.18),
+    0 2px 6px rgb(40 24 8 / 0.12);
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    box-shadow var(--motion-fast) var(--ease);
+}
+
+/* The ink button: hover thins its ink toward the paper; pressed, it sinks into the paper. */
+@media (hover: hover) {
+  .stage-button:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--ink-cream), var(--paper-cream) var(--hover-ink-on-dark));
+  }
+}
+
+.stage-button:active:not(:disabled) {
+  box-shadow: 0 1px 1px rgb(40 24 8 / 0.18);
+}
+
+.stage-button:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.stage-card .stage-lead + .stage-button,
+.stage-card .stage-title + .stage-button {
+  margin-top: 4px;
+}
+
+/* An in-app link (`RouteLink`): ink, with a hairline underline that deepens on hover. */
+.route-link {
+  color: var(--ink-cream);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--ink-cream) 34%, transparent);
+  text-underline-offset: 3px;
+  transition:
+    text-decoration-color var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease),
+    background-color var(--motion-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .route-link:hover {
+    color: color-mix(in srgb, var(--ink-cream), #000 var(--hover-ink));
+    text-decoration-color: currentColor;
+  }
+}
+
+.route-link:active {
+  background: var(--press-wash);
+}
+
+.route-link:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: 2px;
+}
+
+/* A lazy screen whose chunk did not load (`app/ChunkBoundary.tsx`): a quiet slip in its place. */
+.chunk-failed {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+/*
+ * A sheet's (the shelf, a book): where the sheet would lie, in the board's UI layer under the
+ * sidebar and the mini-bar (z 2), which stay in use; the sidebar's room is left clear.
+ */
+.chunk-failed--sheet {
+  z-index: 1;
+  padding-left: var(--sidebar-room);
+  background: color-mix(in srgb, var(--stage) 58%, transparent);
+}
+
+@media (max-width: 767px) {
+  .chunk-failed--sheet {
+    padding: 16px 16px 88px;
+  }
+}
+
+.chunk-failed-card {
+  display: grid;
+  gap: 14px;
+  width: min(360px, 100%);
+  padding: 22px 24px;
+  border-radius: 4px;
+  background: var(--paper-cream) var(--fibre-cream) 0 0 / 256px;
+  color: var(--ink-cream);
+  box-shadow:
+    0 1px 2px rgb(40 24 8 / 0.2),
+    0 10px 24px rgb(40 24 8 / 0.18);
+}
+
+.chunk-failed-text {
+  margin: 0;
+  font: 400 15px / 1.55 var(--font-note);
+  text-wrap: pretty;
+}

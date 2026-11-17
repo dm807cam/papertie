@@ -1,0 +1,464 @@
+/*
+ * The save dot, its popover and the notice slips: the board's own stationery. Cream fibre paper with
+ * its fibre, ink type, indigo-ink focus and the shared motion; nothing moves while it rests.
+ */
+.sync-paper {
+  --sync-ink: var(--ink-cream);
+  --sync-muted: var(--ui-muted);
+  --sync-error: color-mix(in srgb, var(--yarn-apricot) 78%, var(--ink-cream));
+  --sync-rule: color-mix(in srgb, var(--ink-cream) 16%, transparent);
+  position: relative;
+  isolation: isolate;
+  background: var(--paper-cream);
+  color: var(--sync-ink);
+  border-radius: 2px;
+  box-shadow:
+    0 1px 1px rgb(40 24 8 / 0.18),
+    0 4px 8px rgb(40 24 8 / 0.14),
+    0 12px 24px rgb(40 24 8 / 0.1);
+  overflow-wrap: anywhere;
+}
+
+.sync-paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--fibre) 0 0 / 256px;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Read by screen readers only. */
+.sync-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- the dot ---------------------------------------------------------------------------- */
+
+/* Its room is kept whether the dot shows or not, so nothing in the panel moves. */
+.sidebar-foot {
+  display: grid;
+  place-items: center;
+  flex: none;
+  height: 28px;
+}
+
+.save-dot {
+  --dot-ink: var(--ink-cream);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  opacity: 1;
+  transition:
+    opacity var(--motion-slow) var(--ease),
+    background-color var(--motion-fast) var(--ease);
+}
+
+.save-dot[data-shown="false"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--motion-slow) var(--ease),
+    visibility 0s linear var(--motion-slow);
+}
+
+.save-dot[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--ink-cream) 6%, transparent);
+}
+
+/* The UI's one language (tokens.css): hover thins the dot's ink, a press inks the fibre paper. */
+@media (hover: hover) {
+  .save-dot:hover {
+    --dot-ink: color-mix(in srgb, var(--ink-cream), var(--paper-cream) var(--hover-ink-on-dark));
+  }
+}
+
+.save-dot:active {
+  background: var(--press-wash);
+}
+
+.save-dot:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.save-dot-ink {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dot-ink);
+}
+
+/* Waiting for the store: a hollow ring. */
+.save-dot[data-status="offline"] .save-dot-ink {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--dot-ink);
+}
+
+/*
+ * Saving: the offline ring with a 3 px ink centre, a mark filling in. It reads at rest, so a
+ * reduced-motion user sees a change in flight without the pulse.
+ */
+.save-dot[data-status="saving"] .save-dot-ink {
+  background: radial-gradient(circle, var(--dot-ink) 0 1.5px, transparent 1.75px);
+  box-shadow: inset 0 0 0 1.5px var(--dot-ink);
+}
+
+/* Couldn't save, or changes the popover still lists: crimson ink. */
+.save-dot[data-status="error"] .save-dot-ink,
+.save-dot[data-attention][data-status="saved"] .save-dot-ink {
+  background: color-mix(in srgb, var(--yarn-apricot) 78%, var(--ink-cream));
+}
+
+@media (max-height: 620px) {
+  .sidebar-foot {
+    height: 24px;
+  }
+}
+
+/* ---- the popover ------------------------------------------------------------------------ */
+
+.save-pop {
+  position: fixed;
+  z-index: 8;
+  width: min(300px, calc(100vw - 100px));
+  padding: 16px 18px 18px;
+  font: 400 14px / 1.55 var(--font-note);
+  transform-origin: 0 100%;
+  animation: sync-rise var(--motion-base) var(--ease);
+}
+
+.save-pop-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 4px;
+  font: 600 16px / 1.4 var(--font-display);
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+
+.save-pop-ink {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sync-ink);
+}
+
+.save-pop-status[data-status="offline"] .save-pop-ink {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--sync-ink);
+}
+
+.save-pop-status[data-status="saving"] .save-pop-ink {
+  background: radial-gradient(circle, var(--sync-ink) 0 1.5px, transparent 1.75px);
+  box-shadow: inset 0 0 0 1.5px var(--sync-ink);
+}
+
+.save-pop-status[data-status="error"] .save-pop-ink {
+  background: var(--sync-error);
+}
+
+.save-pop-line {
+  margin: 0 0 14px 18px;
+  color: var(--sync-muted);
+}
+
+.save-pop-notices {
+  margin: 0 0 14px;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--sync-rule);
+}
+
+.save-pop-notices > ul {
+  margin: 0 0 6px;
+  padding: 0;
+  list-style: none;
+  font: 400 14px / 1.45 var(--font-note);
+}
+
+.save-pop-notices > ul > li + li {
+  margin-top: 6px;
+}
+
+/* The ink button of the auth card, a size smaller. */
+.sync-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 38px;
+  margin: 0;
+  padding: 0 14px;
+  appearance: none;
+  border: 0;
+  border-radius: 3px;
+  background: var(--ink-cream);
+  color: var(--paper-cream);
+  font: 500 14px / 1 var(--font-note);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow:
+    0 1px 1px rgb(40 24 8 / 0.18),
+    0 2px 6px rgb(40 24 8 / 0.12);
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    box-shadow var(--motion-fast) var(--ease);
+}
+
+/* The ink button: hover thins its ink toward the paper; pressed, it sinks into the paper. */
+@media (hover: hover) {
+  .sync-button:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--ink-cream), var(--paper-cream) var(--hover-ink-on-dark));
+  }
+}
+
+.sync-button:active:not(:disabled) {
+  box-shadow: 0 1px 1px rgb(40 24 8 / 0.18);
+}
+
+.sync-button:disabled {
+  background: color-mix(in srgb, var(--print-stock) 62%, var(--paper-cream));
+  color: var(--sync-muted);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-cream) 26%, var(--paper-cream));
+  cursor: default;
+}
+
+.sync-button:focus-visible,
+.sync-text-button:focus-visible,
+.sync-slip-close:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.sync-text-button {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: var(--sync-ink);
+  font: 500 13px / 1.4 var(--font-note);
+  letter-spacing: 0.02em;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--ink-cream) 34%, transparent);
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition:
+    text-decoration-color var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease),
+    background-color var(--motion-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .sync-text-button:hover {
+    color: color-mix(in srgb, var(--sync-ink), #000 var(--hover-ink));
+    text-decoration-color: currentColor;
+  }
+}
+
+.sync-text-button:active {
+  background: var(--press-wash);
+}
+
+/* A finger's press: still a quiet line, with a whole 44 px target. */
+@media (pointer: coarse) {
+  .sync-text-button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .save-pop > .sync-text-button {
+    display: flex;
+  }
+
+  /* The notices' close ×: its 24 px look, with a whole 44 px press around it. */
+  .sync-slip-close::before {
+    content: "";
+    position: absolute;
+    inset: -10px;
+  }
+}
+
+/*
+ * The popover's download while saving or offline: a quiet line under the status, not the ink
+ * button, which is kept for Couldn't save. With nothing to download it rests muted.
+ */
+.save-pop > .sync-text-button {
+  display: block;
+  margin-left: 18px;
+}
+
+.save-pop > .sync-text-button:disabled {
+  color: var(--sync-muted);
+  text-decoration: none;
+  cursor: default;
+}
+
+/* ---- the slips -------------------------------------------------------------------------- */
+
+.viewport > .ui > .sync-notices {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 10px;
+  width: min(460px, calc(100% - 140px));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.sync-slip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 14px;
+  row-gap: 6px;
+  max-width: 100%;
+  padding: 11px 40px 12px 18px;
+  pointer-events: auto;
+  transform: rotate(-0.4deg);
+  animation: sync-rise var(--motion-base) var(--ease);
+  transition:
+    opacity var(--motion-slow) var(--ease),
+    translate var(--motion-slow) var(--ease);
+}
+
+.sync-slip[data-leaving] {
+  opacity: 0;
+  translate: 0 6px;
+}
+
+.sync-slip-text {
+  margin: 0;
+  font: 400 14px / 1.45 var(--font-note);
+  text-wrap: pretty;
+}
+
+/* A refused change keeps a crimson rule at its edge until it is dismissed. */
+.sync-slip[data-kind="rejected"] {
+  box-shadow:
+    inset 3px 0 0 var(--sync-error),
+    0 1px 1px rgb(40 24 8 / 0.18),
+    0 4px 8px rgb(40 24 8 / 0.14),
+    0 12px 24px rgb(40 24 8 / 0.1);
+}
+
+.sync-slip-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sync-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease),
+    color var(--motion-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .sync-slip-close:hover {
+    color: color-mix(in srgb, var(--sync-muted), #000 var(--hover-ink));
+  }
+}
+
+.sync-slip-close:active {
+  background: var(--press-wash);
+}
+
+.sync-slip-close > svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+@keyframes sync-rise {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+/* Under 768 px the mini-bar (its save dot in it) is at the bottom left: the slips float above. */
+@media (max-width: 767px) {
+  .viewport > .ui > .sync-notices {
+    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 56px + 10px + var(--minibar-rise, 0px));
+    transition:
+      translate var(--motion-base) var(--ease),
+      bottom var(--motion-base) var(--ease);
+    width: calc(100% - 24px);
+  }
+}
+
+/* The page waits for a reload: over every screen until reloaded. */
+/*
+ * Centred on the window; beside the book, on the pane the user works in (`--slip-x`, `--slip-w`:
+ * app/slipPlace.ts), so it never lies across the seam.
+ */
+.sync-updated {
+  position: fixed;
+  left: var(--slip-x, 50%);
+  bottom: 28px;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  width: min(460px, calc(var(--slip-w, 100vw) - 32px));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.sync-updated > .sync-slip {
+  padding-right: 18px;
+}
+
+/* Under 768 px it floats above the mini-bar and the home indicator, as the other slips do. */
+@media (max-width: 767px) {
+  .sync-updated {
+    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 56px + 10px + var(--minibar-rise, 0px));
+    width: calc(100% - 24px);
+  }
+
+  /*
+   * The slip spans the screen's width less its margins: over the writer's text (its column 22 px
+   * in), a slip as wide as its words left the letters' edges showing at its sides.
+   */
+  .sync-updated > .sync-slip {
+    flex: 1;
+  }
+}
