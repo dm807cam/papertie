@@ -35,6 +35,8 @@ jobs:
       CI: "true"
       # Nothing is published by electron-builder itself, and nothing is signed with a certificate.
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      # The container runs as root, and wine keeps its prefix only in a home root owns.
+      HOME: /root
     steps:
       - name: Check out
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
