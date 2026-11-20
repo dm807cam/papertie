@@ -30,11 +30,11 @@ jobs:
       - name: PR prüfen
         uses: actions/github-script@v8
         env:
-          MIN_ACCOUNT_AGE_DAYS: '30'
-          MAX_PRS_PER_AUTHOR_24H: '2'
-          MAX_PRS_PER_REPO_1H: '5'
-          MAX_CHANGED_LINES: '5000'
-          MAX_CHANGED_FILES: '100'
+          MIN_ACCOUNT_AGE_DAYS: "30"
+          MAX_PRS_PER_AUTHOR_24H: "2"
+          MAX_PRS_PER_REPO_1H: "5"
+          MAX_CHANGED_LINES: "5000"
+          MAX_CHANGED_FILES: "100"
         with:
           script: |
             const pr = context.payload.pull_request;
